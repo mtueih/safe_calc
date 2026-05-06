@@ -7,9 +7,12 @@ include(CMakePackageConfigHelpers)
 
 set(CMAKE_C_STANDARD 11)
 
+add_subdirectory(deps/attrs)
+
 # 创建库目标（静态库）
 add_library(safe_calc STATIC src/safe_calc.c)
 add_library(safe_calc::safe_calc ALIAS safe_calc)
+target_link_libraries(safe_calc PRIVATE attrs::attrs)
 
 # 配置包含目录，使用生成器表达式：
 # - BUILD_INTERFACE：直接构建项目时使用

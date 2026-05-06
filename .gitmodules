@@ -1,0 +1,3 @@
+[submodule "deps/attrs"]
+	path = deps/attrs
+	url = https://github.com/mtueih/attrs.git
