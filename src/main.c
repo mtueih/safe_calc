@@ -10,13 +10,13 @@ int main(void) {
 	size_t a, b;
 
 	// 加法测试
-	a = 0;
-	a -= 1;
+	a = (size_t)-1;
+	b = 1;
 
-	if (!safe_size_add(a, 1, &result)) {
-		printf("加法上溢！result：%zu（不变）\n", result);
+	if (!safe_size_add(a, b, &result)) {
+		printf("size_t 加法（%zu + %zu）上溢！result：%zu（不变）\n", a, b, result);
 	} else {
-		printf("加法正常！result：%zu\n", result);
+		printf("size_t 加法（%zu + %zu）正常！result：%zu\n", a, b, result);
 	}
 
 
