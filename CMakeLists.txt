@@ -4,10 +4,11 @@ project(safe_calc VERSION 0.1.0 LANGUAGES C)
 # 引入标准 CMake 模块用于安装和包配置
 include(GNUInstallDirs)
 include(CMakePackageConfigHelpers)
+include(FetchContent)
 
 set(CMAKE_C_STANDARD 11)
 
-add_subdirectory(deps/attrs@mtueih)
+find_package(attrs REQUIRED)
 
 # 创建库目标（静态库）
 add_library(safe_calc STATIC src/safe_calc.c)
