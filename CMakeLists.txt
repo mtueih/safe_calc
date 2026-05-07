@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 4.2)
-project(safe_calc VERSION 1.0.0 LANGUAGES C)
+project(safe_calc VERSION 0.1.0 LANGUAGES C)
 
 # 引入标准 CMake 模块用于安装和包配置
 include(GNUInstallDirs)
@@ -7,12 +7,12 @@ include(CMakePackageConfigHelpers)
 
 set(CMAKE_C_STANDARD 11)
 
-add_subdirectory(deps/attrs)
+add_subdirectory(deps/attrs@mtueih)
 
 # 创建库目标（静态库）
 add_library(safe_calc STATIC src/safe_calc.c)
 add_library(safe_calc::safe_calc ALIAS safe_calc)
-target_link_libraries(safe_calc PRIVATE attrs::attrs)
+target_link_libraries(safe_calc PUBLIC attrs::attrs)
 
 # 配置包含目录，使用生成器表达式：
 # - BUILD_INTERFACE：直接构建项目时使用
