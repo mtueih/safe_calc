@@ -9,6 +9,10 @@
 
 - CMake 3.14 或更高版本。
 
+**依赖**：
+
+- [`attrs`](https://github.com/mtueih/attrs)。
+
 ```bash
 # 克隆仓库。
 git clone https://github.com/mtueih/safe_calc.git
