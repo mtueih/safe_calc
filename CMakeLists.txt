@@ -1,14 +1,11 @@
-cmake_minimum_required(VERSION 4.2)
+cmake_minimum_required(VERSION 3.14)
 project(safe_calc VERSION 0.1.0 LANGUAGES C)
 
 # 引入标准 CMake 模块用于安装和包配置。
 include(GNUInstallDirs)
 include(CMakePackageConfigHelpers)
-include(FetchContent)
 
-set(CMAKE_C_STANDARD 99)
-set(CMAKE_C_STANDARD_REQUIRED ON)
-
+# 查找/声明依赖包。
 find_package(attrs REQUIRED)
 
 # 创建库目标（静态库）。
@@ -24,7 +21,7 @@ target_include_directories(safe_calc PUBLIC
 	$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
-# 可选：添加测试可执行文件（仅用于开发测试，不安装）。
+# 添加测试可执行文件（仅用于开发测试，不安装）。
 add_executable(safe_calc_test src/main.c)
 target_link_libraries(safe_calc_test PRIVATE safe_calc)
 

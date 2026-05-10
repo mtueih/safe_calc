@@ -1,8 +1,13 @@
 # safe_calc
 
-![C99](https://img.shields.io/badge/standard-C99-blue.svg)
+[![C Standard](https://img.shields.io/badge/C-C99/C11/C17/C23-blue.svg)](https://cppreference.cn/w/c)
+[![CMake](https://img.shields.io/badge/CMake-3.14+-green.svg)](https://cmake.org/)
 
 ## 安装
+
+**环境要求**：
+
+- CMake 3.14 或更高版本。
 
 ```bash
 # 克隆仓库。
