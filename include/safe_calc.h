@@ -19,7 +19,7 @@ bool safe_size_add(
 	size_t a,
 	size_t b,
 	size_t *result
-) ATTRS_PURE ATTRS_NONNULL(3);
+) ATTRS_NONNULL(3);
 
 /**
  * @brief 测试【size_t 加法】能否成功执行，不会出现溢出。
@@ -43,7 +43,7 @@ bool safe_size_sub(
 	size_t a,
 	size_t b,
 	size_t *result
-) ATTRS_PURE ATTRS_NONNULL(3);
+) ATTRS_NONNULL(3);
 
 /**
  * @brief 测试【size_t 减法】能否成功执行，不会出现溢出。
@@ -67,7 +67,7 @@ bool safe_size_mul(
 	size_t a,
 	size_t b,
 	size_t *result
-) ATTRS_PURE ATTRS_NONNULL(3);
+) ATTRS_NONNULL(3);
 
 /**
  * @brief 测试【size_t 乘法】能否成功执行，不会出现溢出。
@@ -91,7 +91,7 @@ bool safe_size_align_up(
 	size_t x,
 	size_t align,
 	size_t *result
-) ATTRS_PURE ATTRS_NONNULL(3);
+) ATTRS_NONNULL(3);
 
 /**
  * @brief 测试【size_t 向上对齐到某个数的整数倍】能否成功执行，不会出现溢出。
