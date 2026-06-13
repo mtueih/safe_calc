@@ -1,18 +1,45 @@
+/*
+ * Copyright (C) 2026 mtueih
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 #ifndef SAFE_CALC_H
 #define SAFE_CALC_H
 
 #include <attrs.h>
 #include <stddef.h>
 
-#if defined(__STDC_VERSION__) && __STDC_VERSION__ < 202311L
-#include <stdbool.h>
+/* C23 标准移除了 stdbool.h，因此仅在 C23 以下标准时包含此文件。 */
+#if !defined(__STDC_VERSION__) || (defined(__STDC_VERSION__) && __STDC_VERSION__ < 202311L)
+#  include <stdbool.h>
 #endif
+
+
+/***************************************************************
+ ******************    API 函数原型（声明）。    ******************
+ **************************************************************/
+
+/* size_t 加法。 */
 
 /**
  * @brief 安全地执行【size_t 加法】，防止溢出。
+ *
  * @param a 第一个操作数。
  * @param b 第二个操作数。
  * @param result 指向「存储执行结果的 size_t 变量」的指针（不能为 NULL），如果溢出将不会执行写入操作。
+ *
  * @return 如果没有出现溢出，则返回 true，否则返回 false。
  */
 bool safe_size_add(
@@ -23,8 +50,10 @@ bool safe_size_add(
 
 /**
  * @brief 测试【size_t 加法】能否成功执行，不会出现溢出。
+ *
  * @param a 第一个操作数。
  * @param b 第二个操作数。
+ *
  * @return 如果不会出现溢出则返回 true，否则返回 false。
  */
 bool safe_size_add_test(
@@ -32,11 +61,15 @@ bool safe_size_add_test(
 	size_t b
 ) ATTRS_PURE;
 
+/* size_t 减法。 */
+
 /**
  * @brief 安全地执行【size_t 减法】，防止溢出。
+ *
  * @param a 第一个操作数。
  * @param b 第二个操作数。
  * @param result 指向「存储执行结果的 size_t 变量」的指针（不能为 NULL），如果溢出将不会执行写入操作。
+ *
  * @return 如果没有出现溢出，则返回 true，否则返回 false。
  */
 bool safe_size_sub(
@@ -47,8 +80,10 @@ bool safe_size_sub(
 
 /**
  * @brief 测试【size_t 减法】能否成功执行，不会出现溢出。
+ *
  * @param a 第一个操作数。
  * @param b 第二个操作数。
+ *
  * @return 如果不会出现溢出则返回 true，否则返回 false。
  */
 bool safe_size_sub_test(
@@ -56,11 +91,15 @@ bool safe_size_sub_test(
 	size_t b
 ) ATTRS_PURE;
 
+/* size_t 乘法。 */
+
 /**
  * @brief 安全地执行【size_t 乘法】，防止溢出。
+ *
  * @param a 第一个操作数。
  * @param b 第二个操作数。
  * @param result 指向「存储执行结果的 size_t 变量」的指针（不能为 NULL），如果溢出将不会执行写入操作。
+ *
  * @return 如果没有出现溢出，则返回 true，否则返回 false。
  */
 bool safe_size_mul(
@@ -71,8 +110,10 @@ bool safe_size_mul(
 
 /**
  * @brief 测试【size_t 乘法】能否成功执行，不会出现溢出。
+ *
  * @param a 第一个操作数。
  * @param b 第二个操作数。
+ *
  * @return 如果不会出现溢出则返回 true，否则返回 false。
  */
 bool safe_size_mul_test(
@@ -80,11 +121,15 @@ bool safe_size_mul_test(
 	size_t b
 ) ATTRS_PURE;
 
+/* size_t 向上对齐到某个数的整数倍。 */
+
 /**
  * @brief 安全地执行【size_t 向上对齐到某个数的整数倍】，防止溢出。
+ *
  * @param x 要对齐的数。
  * @param align 对齐值。
  * @param result 指向「存储执行结果的 size_t 变量」的指针（不能为 NULL），如果溢出将不会执行写入操作。
+ *
  * @return 如果没有出现溢出，则返回 true，否则返回 false。
  */
 bool safe_size_align_up(
@@ -95,8 +140,10 @@ bool safe_size_align_up(
 
 /**
  * @brief 测试【size_t 向上对齐到某个数的整数倍】能否成功执行，不会出现溢出。
+ *
  * @param x 要对齐的数。
  * @param align 对齐值。
+ *
  * @return 如果不会出现溢出则返回 true，否则返回 false。
  */
 bool safe_size_align_up_test(
@@ -104,4 +151,4 @@ bool safe_size_align_up_test(
 	size_t align
 ) ATTRS_PURE;
 
-#endif
+#endif /* SAFE_CALC_H */

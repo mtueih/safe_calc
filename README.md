@@ -2,6 +2,7 @@
 
 [![C Standard](https://img.shields.io/badge/C-C99/C11/C17/C23-blue.svg)](https://cppreference.cn/w/c)
 [![CMake](https://img.shields.io/badge/CMake-3.14+-green.svg)](https://cmake.org/)
+[![GitHub License](https://img.shields.io/github/license/mtueih/safe_calc)](LICENSE)
 
 ## 安装
 
@@ -11,7 +12,7 @@
 
 **依赖**：
 
-- [`attrs`](https://github.com/mtueih/attrs)。
+- [`attrs`](https://github.com/mtueih/attrs/)。
 
 ```bash
 # 克隆仓库。
@@ -29,7 +30,12 @@ cmake --install .
 
 ## 使用
 
+### CMake
+
+在 `CMakeLists.txt` 中添加以下内容：
+
 ```cmake
 find_package(safe_calc REQUIRED)
+
 target_link_libraries(your_target PRIVATE safe_calc::safe_calc)
 ```
