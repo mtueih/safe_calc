@@ -54,6 +54,17 @@ jobs:
       run: |
         echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
 
+    - name: Install dependencies
+      # Clone and build the attrs dependency.
+      run: |
+        cd ${{ github.workspace }}
+        git clone https://github.com/mtueih/attrs.git deps/attrs
+        mkdir -p deps/attrs/build
+        cd deps/attrs/build
+        cmake .. -DCMAKE_INSTALL_PREFIX=${{ github.workspace }}/deps/install
+        cmake --build . --config ${{ matrix.build_type }}
+        cmake --install .
+
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
       # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
@@ -62,6 +73,7 @@ jobs:
         -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
         -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
         -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+        -DCMAKE_PREFIX_PATH=${{ github.workspace }}/deps/install
         -S ${{ github.workspace }}
 
     - name: Build

@@ -3,6 +3,7 @@
 [![C Standard](https://img.shields.io/badge/C-C99/C11/C17/C23-blue.svg)](https://cppreference.cn/w/c)
 [![CMake](https://img.shields.io/badge/CMake-3.14+-green.svg)](https://cmake.org/)
 [![GitHub License](https://img.shields.io/github/license/mtueih/safe_calc)](LICENSE)
+[![CMake on multiple platforms](https://github.com/mtueih/safe_calc/actions/workflows/cmake-multi-platform.yml/badge.svg)](https://github.com/mtueih/safe_calc/actions/workflows/cmake-multi-platform.yml)
 
 ## 安装
 
