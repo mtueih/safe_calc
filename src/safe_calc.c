@@ -18,6 +18,7 @@
 #include "safe_calc.h"
 
 #include <limits.h>
+#include <stdint.h>
 
 
 /***************************************************************
