@@ -13,6 +13,10 @@ add_library(safe_calc STATIC src/safe_calc.c)
 add_library(safe_calc::safe_calc ALIAS safe_calc)
 target_link_libraries(safe_calc PUBLIC attrs::attrs)
 
+# 添加测试可执行文件（仅用于开发测试，不安装）。
+add_executable(safe_calc_test tests/test_safe_calc.c)
+target_link_libraries(safe_calc_test PRIVATE safe_calc)
+
 # 配置包含目录，使用生成器表达式：
 # - BUILD_INTERFACE：直接构建项目时使用。
 # - INSTALL_INTERFACE：使用已安装的包时使用。
@@ -20,10 +24,6 @@ target_include_directories(safe_calc PUBLIC
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
 	$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
-
-# 添加测试可执行文件（仅用于开发测试，不安装）。
-add_executable(safe_calc_test src/main.c)
-target_link_libraries(safe_calc_test PRIVATE safe_calc)
 
 # 安装头文件到标准包含目录。
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/
