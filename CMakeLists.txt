@@ -1,21 +1,21 @@
-cmake_minimum_required(VERSION 3.14)
+cmake_minimum_required(VERSION 3.21)
 project(safe_calc VERSION 0.1.0 LANGUAGES C)
 
 # 引入标准 CMake 模块用于安装和包配置。
 include(GNUInstallDirs)
 include(CMakePackageConfigHelpers)
 
-# 查找/声明依赖包。
-find_package(attrs REQUIRED)
-
 # 创建库目标（静态库）。
 add_library(safe_calc STATIC src/safe_calc.c)
 add_library(safe_calc::safe_calc ALIAS safe_calc)
-target_link_libraries(safe_calc PUBLIC attrs::attrs)
 
 # 添加测试可执行文件（仅用于开发测试，不安装）。
 add_executable(safe_calc_test tests/test_safe_calc.c)
 target_link_libraries(safe_calc_test PRIVATE safe_calc)
+
+# 启用 CTest 测试支持。
+enable_testing()
+add_test(NAME safe_calc_test COMMAND safe_calc_test)
 
 # 配置包含目录，使用生成器表达式：
 # - BUILD_INTERFACE：直接构建项目时使用。
