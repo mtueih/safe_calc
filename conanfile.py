@@ -10,12 +10,13 @@ class SafeCalcConan(ConanFile):
     # 包元数据
     # ------------------------------------------------------------------
     package_type = "static-library"
-    license = "GPL-3.0-only"
+    license = "GPL-3.0-or-later"
     author = "mtueih"
     description = (
         "A safe arithmetic library for size_t operations "
         "(add / sub / mul / align_up) with overflow detection."
     )
+    topics = ("arithmetic", "safe", "overflow", "size_t")
     url = "https://github.com/mtueih/safe_calc"
 
     # ------------------------------------------------------------------
@@ -35,7 +36,7 @@ class SafeCalcConan(ConanFile):
         "CMakeLists.txt",
         "src/*",
         "include/*",
-        "cmake/*",
+        "cmake/*"
     )
 
     # ------------------------------------------------------------------
@@ -74,3 +75,4 @@ class SafeCalcConan(ConanFile):
     def package_info(self):
         self.cpp_info.libs = ["safe_calc"]
         self.cpp_info.set_property("cmake_target_name", "safe_calc::safe_calc")
+        self.cpp_info.set_property("cmake_file_name", "safe_calc")
