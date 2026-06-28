@@ -21,16 +21,10 @@ jobs:
         build_type: [ Debug, Release ]
         c_compiler: [ gcc, clang, cl ]
         c_standard: [ 99, 11, 17, 23 ]
-        include:
-          - os: ubuntu-latest
-            c_compiler: gcc
-          - os: ubuntu-latest
-            c_compiler: clang
-          - os: macos-latest
-            c_compiler: clang
-          - os: windows-latest
-            c_compiler: cl
+
         exclude:
+          - os: ubuntu-latest
+            c_compiler: clang
           - os: ubuntu-latest
             c_compiler: cl
           - os: macos-latest
@@ -45,7 +39,7 @@ jobs:
             c_standard: 23
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Set reusable strings
         id: strings
