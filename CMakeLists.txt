@@ -1,37 +1,43 @@
+# ==============================================================================
+# safe_calc — 顶层 CMake 构建脚本
+# ==============================================================================
+# 职责：
+#   1. 项目声明与核心模块引入
+#   2. 子目录构建目标编排
+#   3. 安装规则（头文件 / 库 / CMake 包配置）
+#   4. 测试入口（CTest）
+# ==============================================================================
+
 cmake_minimum_required(VERSION 3.21)
 project(safe_calc VERSION 0.1.0 LANGUAGES C)
 
-# 引入标准 CMake 模块用于安装和包配置。
+# ------------------------------------------------------------------------
+# 核心模块
+# ------------------------------------------------------------------------
+# CTest                     — 测试框架支持
+# GNUInstallDirs            — 平台标准安装路径变量（lib / bin / include）
+# CMakePackageConfigHelpers — configure_package_config_file 等包配置宏
+include(CTest)
 include(GNUInstallDirs)
 include(CMakePackageConfigHelpers)
 
-# 创建库目标（静态库）。
-add_library(safe_calc STATIC src/safe_calc.c)
-add_library(safe_calc::safe_calc ALIAS safe_calc)
+# ------------------------------------------------------------------------
+# 构建目标
+# ------------------------------------------------------------------------
+add_subdirectory(src)
 
-# 添加测试可执行文件（仅用于开发测试，不安装）。
-add_executable(safe_calc_test tests/test_safe_calc.c)
-target_link_libraries(safe_calc_test PRIVATE safe_calc)
+# ------------------------------------------------------------------------
+# 安装规则
+# ------------------------------------------------------------------------
 
-# 启用 CTest 测试支持。
-enable_testing()
-add_test(NAME safe_calc_test COMMAND safe_calc_test)
-
-# 配置包含目录，使用生成器表达式：
-# - BUILD_INTERFACE：直接构建项目时使用。
-# - INSTALL_INTERFACE：使用已安装的包时使用。
-target_include_directories(safe_calc PUBLIC
-	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-	$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
-)
-
-# 安装头文件到标准包含目录。
-install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/
+# 公共头文件
+install(DIRECTORY ${PROJECT_SOURCE_DIR}/include/
 	DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
 	FILES_MATCHING PATTERN "*.h"
 )
 
-# 安装库文件到标准库目录。
+# 库文件及 EXPORT 定义（safe_calcTargets）
+# 同时指定 INCLUDES DESTINATION，使下游 find_package 后自动获得头文件路径
 install(TARGETS safe_calc
 	EXPORT safe_calcTargets
 	LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
@@ -40,30 +46,42 @@ install(TARGETS safe_calc
 	INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
 )
 
-# 导出目标定义供下游项目使用。
+# 安装 EXPORT 目标文件
+# 下游通过 find_package(safe_calc) 即可导入 safe_calc::safe_calc 目标
 install(EXPORT safe_calcTargets
 	FILE safe_calcTargets.cmake
 	NAMESPACE safe_calc::
 	DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/safe_calc
 )
 
-# 从模板生成包配置文件。
+# ------------------------------------------------------------------------
+# CMake 包配置（find_package 支持）
+# ------------------------------------------------------------------------
+
+# 从 .in 模板生成 safe_calcConfig.cmake
 configure_package_config_file(
-	${CMAKE_CURRENT_SOURCE_DIR}/cmake/safe_calcConfig.cmake.in
+	${PROJECT_SOURCE_DIR}/cmake/safe_calcConfig.cmake.in
 	${CMAKE_CURRENT_BINARY_DIR}/safe_calcConfig.cmake
 	INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/safe_calc
 )
 
-# 生成版本兼容性文件（支持同主版本兼容策略）。
+# 生成版本兼容文件，策略：SameMajorVersion
 write_basic_package_version_file(
 	"${CMAKE_CURRENT_BINARY_DIR}/safe_calcConfigVersion.cmake"
 	VERSION ${PROJECT_VERSION}
 	COMPATIBILITY SameMajorVersion
 )
 
-# 安装包配置文件和版本文件，以支持 find_package() 功能。
+# 安装 Config + Version 文件至包搜索路径
 install(FILES
 	${CMAKE_CURRENT_BINARY_DIR}/safe_calcConfig.cmake
 	${CMAKE_CURRENT_BINARY_DIR}/safe_calcConfigVersion.cmake
 	DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/safe_calc
 )
+
+# ------------------------------------------------------------------------
+# 测试
+# ------------------------------------------------------------------------
+if(BUILD_TESTING)
+	add_subdirectory(tests)
+endif()
