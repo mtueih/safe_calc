@@ -81,6 +81,3 @@ jobs:
 
       - name: CTest
         run: ctest --test-dir build --output-on-failure
-
-      - name: Show sccache stats
-        run: sccache --show-stats
