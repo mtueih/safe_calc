@@ -82,7 +82,5 @@ jobs:
       - name: CTest
         run: ctest --test-dir build --output-on-failure
 
-      - run: env | grep SCCACHE
-
       - name: Show sccache stats
         run: sccache --show-stats
