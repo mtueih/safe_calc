@@ -20,7 +20,7 @@ cd safe_calc
 mkdir build && cd build
 
 # 配置并安装。
-cmake ..
+cmake .. -DSAFE_CALC_INSTALL=ON -DBUILD_TESTING=OFF
 cmake --build .
 cmake --install .
 ```

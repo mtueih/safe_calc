@@ -17,6 +17,19 @@ project(safe_calc VERSION 0.1.0 LANGUAGES C)
 
 
 # -----------------------------------------------------------------------------
+# 全局变量定义
+# -----------------------------------------------------------------------------
+# 变量：
+#	1. MAIN_PACKAGE_NAME: 项目主包的名称。
+#	2. MAIN_LIB_TARGET_NAME: 项目主库的目标名称。
+#	3. SAFE_CALC_INSTALL: 是否启用安装。
+# -----------------------------------------------------------------------------
+set(MAIN_PACKAGE_NAME ${PROJECT_NAME})
+set(MAIN_LIB_TARGET_NAME ${PROJECT_NAME})
+option(SAFE_CALC_INSTALL "Enable installation" OFF)
+
+
+# -----------------------------------------------------------------------------
 # 模块引入
 # -----------------------------------------------------------------------------
 # 模块：
@@ -26,19 +39,11 @@ project(safe_calc VERSION 0.1.0 LANGUAGES C)
 #		的辅助函数。
 # -----------------------------------------------------------------------------
 include(CTest)
-include(GNUInstallDirs)
-include(CMakePackageConfigHelpers)
 
-
-# -----------------------------------------------------------------------------
-# 全局变量定义
-# -----------------------------------------------------------------------------
-# 变量：
-#	1. MAIN_PACKAGE_NAME: 项目主包的名称。
-#	2. MAIN_LIB_TARGET_NAME: 项目主库的目标名称。
-# -----------------------------------------------------------------------------
-set(MAIN_PACKAGE_NAME ${PROJECT_NAME})
-set(MAIN_LIB_TARGET_NAME ${PROJECT_NAME})
+if (SAFE_CALC_INSTALL)
+	include(GNUInstallDirs)
+	include(CMakePackageConfigHelpers)
+endif ()
 
 
 # -----------------------------------------------------------------------------
@@ -60,34 +65,35 @@ endif ()
 # -----------------------------------------------------------------------------
 # 包配置与安装
 # -----------------------------------------------------------------------------
+if (SAFE_CALC_INSTALL)
+	# 生成并安装项目目标集文件。
+	install(EXPORT ${MAIN_PACKAGE_NAME}Targets
+		FILE ${MAIN_PACKAGE_NAME}Targets.cmake
+		NAMESPACE ${MAIN_PACKAGE_NAME}::
+		DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${MAIN_PACKAGE_NAME}
+	)
 
-# 生成并安装项目目标集文件。
-install(EXPORT ${MAIN_PACKAGE_NAME}Targets
-	FILE ${MAIN_PACKAGE_NAME}Targets.cmake
-	NAMESPACE ${MAIN_PACKAGE_NAME}::
-	DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${MAIN_PACKAGE_NAME}
-)
+	# 从模板文件生成包配置文件。
+	configure_package_config_file(
+		# 模板文件（cmake/${MAIN_PACKAGE_NAME}Config.cmake.in），需要手动编写。
+		${PROJECT_SOURCE_DIR}/cmake/${MAIN_PACKAGE_NAME}Config.cmake.in
 
-# 从模板文件生成包配置文件。
-configure_package_config_file(
-	# 模板文件（cmake/${MAIN_PACKAGE_NAME}Config.cmake.in），需要手动编写。
-	${PROJECT_SOURCE_DIR}/cmake/${MAIN_PACKAGE_NAME}Config.cmake.in
+		${PROJECT_BINARY_DIR}/${MAIN_PACKAGE_NAME}Config.cmake
+		INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${MAIN_PACKAGE_NAME}
+	)
 
-	${PROJECT_BINARY_DIR}/${MAIN_PACKAGE_NAME}Config.cmake
-	INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${MAIN_PACKAGE_NAME}
-)
+	# 生成包版本文件。
+	write_basic_package_version_file(
+		${PROJECT_BINARY_DIR}/${MAIN_PACKAGE_NAME}ConfigVersion.cmake
+		VERSION ${PROJECT_VERSION}
+		# 兼容性设置为 SameMajorVersion，表示主版本号相同则兼容。
+		COMPATIBILITY SameMajorVersion
+	)
 
-# 生成包版本文件。
-write_basic_package_version_file(
-	${PROJECT_BINARY_DIR}/${MAIN_PACKAGE_NAME}ConfigVersion.cmake
-	VERSION ${PROJECT_VERSION}
-	# 兼容性设置为 SameMajorVersion，表示主版本号相同则兼容。
-	COMPATIBILITY SameMajorVersion
-)
-
-# 将生成的包配置文件安装到标准 CMake 包目录。
-install(FILES
-	${PROJECT_BINARY_DIR}/${MAIN_PACKAGE_NAME}Config.cmake
-	${PROJECT_BINARY_DIR}/${MAIN_PACKAGE_NAME}ConfigVersion.cmake
-	DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${MAIN_PACKAGE_NAME}
-)
+	# 将生成的包配置文件安装到标准 CMake 包目录。
+	install(FILES
+		${PROJECT_BINARY_DIR}/${MAIN_PACKAGE_NAME}Config.cmake
+		${PROJECT_BINARY_DIR}/${MAIN_PACKAGE_NAME}ConfigVersion.cmake
+		DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${MAIN_PACKAGE_NAME}
+	)
+endif ()

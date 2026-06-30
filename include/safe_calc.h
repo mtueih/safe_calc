@@ -15,6 +15,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+
 #ifndef SAFE_CALC_H
 #define SAFE_CALC_H
 
