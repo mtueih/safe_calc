@@ -58,27 +58,11 @@ jobs:
         uses: mozilla-actions/sccache-action@v0.0.10
 
       - name: Configure CMake
-        if: matrix.os != 'windows-latest'
         run: >
           cmake
           -S .
           -B build
           -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
-          -G Ninja
-          -DCMAKE_C_STANDARD=${{ matrix.c_standard }}
-          -DCMAKE_C_STANDARD_REQUIRED=ON
-          -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
-          -DCMAKE_C_EXTENSIONS=OFF
-          -DSAFE_CALC_INSTALL=OFF
-          -DCMAKE_C_COMPILER_LAUNCHER=sccache
-
-      - name: Configure CMake
-        if: matrix.os == 'windows-latest'
-        run: >
-          cmake
-          -S .
-          -B build
-          -G Ninja
           -DCMAKE_C_STANDARD=${{ matrix.c_standard }}
           -DCMAKE_C_STANDARD_REQUIRED=ON
           -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
