@@ -7,9 +7,11 @@
 
 ## 安装
 
+### CMake
+
 **环境要求**：
 
-- CMake 3.21 或更高版本。
+- [CMake](https://cmake.org/) 3.21 或更高版本。
 
 ```bash
 # 克隆仓库。
@@ -23,6 +25,27 @@ mkdir build && cd build
 cmake .. -DSAFE_CALC_INSTALL=ON -DBUILD_TESTING=OFF
 cmake --build .
 cmake --install .
+```
+
+### CPM.cmake
+
+**环境要求**：
+
+- [CPM.cmake](https://github.com/cpm-cmake/CPM.cmake)。
+
+在 CMakeLists.txt 中添加以下内容：
+
+```cmake
+include(cmake/CPM.cmake)
+
+CPMAddPackage(
+	NAME safe_calc
+	GIT_REPOSITORY mtueih/safe_calc
+	GIT_TAG 0.1.0
+	OPTIONS
+		"SAFE_CALC_INSTALL OFF"
+		"BUILD_TESTING OFF"
+)
 ```
 
 ## 使用
