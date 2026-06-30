@@ -63,6 +63,7 @@ jobs:
           -S .
           -B build
           -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
+          -G Ninja
           -DCMAKE_C_STANDARD=${{ matrix.c_standard }}
           -DCMAKE_C_STANDARD_REQUIRED=ON
           -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
