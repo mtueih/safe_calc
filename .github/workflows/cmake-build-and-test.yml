@@ -56,7 +56,7 @@ jobs:
 
       - uses: mozilla-actions/sccache-action@v0.0.10
 
-      - uses: TheMrMilchmann/setup-msvc-dev@v4
+      - uses: ilammy/msvc-dev-cmd@v1
         if: runner.os == 'Windows' && matrix.c_compiler == 'cl'
 
       - name: Configure CMake
