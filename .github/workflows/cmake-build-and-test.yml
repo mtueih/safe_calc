@@ -48,8 +48,11 @@ jobs:
             c_compiler: gcc
           - os: windows-latest
             c_compiler: clang
-#          - os: windows-latest
-#            c_standard: 23
+          - os: windows-latest
+            c_standard: 23
+
+    env:
+      SCCACHE_GHA_ENABLED: "true"
 
     steps:
       - uses: actions/checkout@v7
