@@ -16,7 +16,7 @@ on:
       - "tests/**"
       - "CMakeLists.txt"
       - "cmake/**"
-      - "cmake-build-and-test.yml"
+      - ".github/workflows/cmake-build-and-test.yml"
   pull_request:
     branches: [ "main" ]
     paths: *build-paths
