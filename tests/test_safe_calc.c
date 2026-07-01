@@ -65,7 +65,7 @@ typedef struct {
 	int func_fail;
 } test_runner_t;
 
-static test_runner_t g_runner = { 0, 0, 0, 0 };
+static test_runner_t g_runner = {0, 0, 0, 0};
 
 
 /*-----------------------------------------------------------------------------
@@ -174,21 +174,21 @@ typedef struct {
 	size_t a;
 	size_t b;
 	size_t expected;
-	bool   should_pass;
+	bool should_pass;
 } add_sub_case_t;
 
 typedef struct {
 	size_t a;
 	size_t b;
 	size_t expected;
-	bool   should_pass;
+	bool should_pass;
 } mul_case_t;
 
 typedef struct {
 	size_t x;
 	size_t align;
 	size_t expected;
-	bool   should_pass;
+	bool should_pass;
 } align_case_t;
 
 
@@ -200,7 +200,7 @@ typedef struct {
  *---------------------------------------------------------------------------*/
 static void test_safe_size_t_add(void) {
 	size_t result;
-	bool   ret;
+	bool ret;
 
 	/* ---- 正常行为 ---- */
 
@@ -289,20 +289,18 @@ static void test_safe_size_t_add(void) {
 
 	{
 		static const add_sub_case_t cases[] = {
-			{ 100,       200,        300,            true  },
-			{ 0,         0,          0,              true  },
-			{ 1,         0,          1,              true  },
-			{ 0,         1,          1,              true  },
-			{ SIZE_MAX,  0,          SIZE_MAX,       true  },
-			{ 0,         SIZE_MAX,   SIZE_MAX,       true  },
+			{100, 200, 300, true},
+			{0, 0, 0, true},
+			{1, 0, 1, true},
+			{0, 1, 1, true},
+			{SIZE_MAX, 0, SIZE_MAX, true},
+			{0, SIZE_MAX, SIZE_MAX, true},
 		};
 		for (size_t i = 0; i < sizeof(cases) / sizeof(cases[0]); i++) {
 			result = 0;
 			ret = safe_size_t_add(cases[i].a, cases[i].b, &result);
 			ASSERT_BOOL_IDX(cases[i].should_pass, ret, i);
-			if (cases[i].should_pass) {
-				ASSERT_EQ_SIZE_T_IDX(cases[i].expected, result, i);
-			}
+			if (cases[i].should_pass) { ASSERT_EQ_SIZE_T_IDX(cases[i].expected, result, i); }
 		}
 	}
 
@@ -310,11 +308,11 @@ static void test_safe_size_t_add(void) {
 
 	{
 		static const add_sub_case_t over_cases[] = {
-			{ SIZE_MAX,     1,              SENTINEL_ADD, false },
-			{ 1,            SIZE_MAX,       SENTINEL_ADD, false },
-			{ SIZE_MAX,     SIZE_MAX,       SENTINEL_ADD, false },
-			{ SIZE_MAX - 1, 2,              SENTINEL_ADD, false },
-			{ SIZE_MAX / 2 + 1, SIZE_MAX / 2 + 1, SENTINEL_ADD, false },
+			{SIZE_MAX, 1, SENTINEL_ADD, false},
+			{1, SIZE_MAX, SENTINEL_ADD, false},
+			{SIZE_MAX, SIZE_MAX, SENTINEL_ADD, false},
+			{SIZE_MAX - 1, 2, SENTINEL_ADD, false},
+			{SIZE_MAX / 2 + 1, SIZE_MAX / 2 + 1, SENTINEL_ADD, false},
 		};
 		for (size_t i = 0; i < sizeof(over_cases) / sizeof(over_cases[0]); i++) {
 			result = SENTINEL_ADD;
@@ -345,7 +343,7 @@ static void test_safe_size_t_add(void) {
  *---------------------------------------------------------------------------*/
 static void test_safe_size_t_sub(void) {
 	size_t result;
-	bool   ret;
+	bool ret;
 
 	/* ---- 正常行为 ---- */
 
@@ -417,19 +415,17 @@ static void test_safe_size_t_sub(void) {
 
 	{
 		static const add_sub_case_t cases[] = {
-			{ 500,       200,       300,      true },
-			{ 1,         1,         0,        true },
-			{ SIZE_MAX,  SIZE_MAX,  0,        true },
-			{ SIZE_MAX,  0,         SIZE_MAX, true },
-			{ 0,         0,         0,        true },
+			{500, 200, 300, true},
+			{1, 1, 0, true},
+			{SIZE_MAX, SIZE_MAX, 0, true},
+			{SIZE_MAX, 0, SIZE_MAX, true},
+			{0, 0, 0, true},
 		};
 		for (size_t i = 0; i < sizeof(cases) / sizeof(cases[0]); i++) {
 			result = 0;
 			ret = safe_size_t_sub(cases[i].a, cases[i].b, &result);
 			ASSERT_BOOL_IDX(cases[i].should_pass, ret, i);
-			if (cases[i].should_pass) {
-				ASSERT_EQ_SIZE_T_IDX(cases[i].expected, result, i);
-			}
+			if (cases[i].should_pass) { ASSERT_EQ_SIZE_T_IDX(cases[i].expected, result, i); }
 		}
 	}
 
@@ -437,10 +433,10 @@ static void test_safe_size_t_sub(void) {
 
 	{
 		static const add_sub_case_t over_cases[] = {
-			{ 0,     1,         SENTINEL_SUB, false },
-			{ 10,    20,        SENTINEL_SUB, false },
-			{ 1,     SIZE_MAX,  SENTINEL_SUB, false },
-			{ 0,     SIZE_MAX,  SENTINEL_SUB, false },
+			{0, 1, SENTINEL_SUB, false},
+			{10, 20, SENTINEL_SUB, false},
+			{1, SIZE_MAX, SENTINEL_SUB, false},
+			{0, SIZE_MAX, SENTINEL_SUB, false},
 		};
 		for (size_t i = 0; i < sizeof(over_cases) / sizeof(over_cases[0]); i++) {
 			result = SENTINEL_SUB;
@@ -471,7 +467,7 @@ static void test_safe_size_t_sub(void) {
  *---------------------------------------------------------------------------*/
 static void test_safe_size_t_mul(void) {
 	size_t result;
-	bool   ret;
+	bool ret;
 
 	/* ---- 正常行为 ---- */
 
@@ -562,22 +558,20 @@ static void test_safe_size_t_mul(void) {
 
 	{
 		static const mul_case_t cases[] = {
-			{ 100,       3,          300,              true },
-			{ 0,         0,          0,                true },
-			{ 0,         999,        0,                true },
-			{ 999,       0,          0,                true },
-			{ SIZE_MAX,  1,          SIZE_MAX,         true },
-			{ 1,         SIZE_MAX,   SIZE_MAX,         true },
-			{ SIZE_MAX / 2, 2,      (SIZE_MAX / 2) * 2, true },
-			{ 2, SIZE_MAX / 2,      2 * (SIZE_MAX / 2), true },
+			{100, 3, 300, true},
+			{0, 0, 0, true},
+			{0, 999, 0, true},
+			{999, 0, 0, true},
+			{SIZE_MAX, 1, SIZE_MAX, true},
+			{1, SIZE_MAX, SIZE_MAX, true},
+			{SIZE_MAX / 2, 2, (SIZE_MAX / 2) * 2, true},
+			{2, SIZE_MAX / 2, 2 * (SIZE_MAX / 2), true},
 		};
 		for (size_t i = 0; i < sizeof(cases) / sizeof(cases[0]); i++) {
 			result = 0;
 			ret = safe_size_t_mul(cases[i].a, cases[i].b, &result);
 			ASSERT_BOOL_IDX(cases[i].should_pass, ret, i);
-			if (cases[i].should_pass) {
-				ASSERT_EQ_SIZE_T_IDX(cases[i].expected, result, i);
-			}
+			if (cases[i].should_pass) { ASSERT_EQ_SIZE_T_IDX(cases[i].expected, result, i); }
 		}
 	}
 
@@ -585,11 +579,11 @@ static void test_safe_size_t_mul(void) {
 
 	{
 		static const mul_case_t over_cases[] = {
-			{ SIZE_MAX,         2,              SENTINEL_MUL, false },
-			{ 2,                SIZE_MAX,       SENTINEL_MUL, false },
-			{ SIZE_MAX,         SIZE_MAX,       SENTINEL_MUL, false },
-			{ SIZE_MAX / 2 + 1, 2,              SENTINEL_MUL, false },
-			{ 2,                SIZE_MAX / 2 + 1, SENTINEL_MUL, false },
+			{SIZE_MAX, 2, SENTINEL_MUL, false},
+			{2, SIZE_MAX, SENTINEL_MUL, false},
+			{SIZE_MAX, SIZE_MAX, SENTINEL_MUL, false},
+			{SIZE_MAX / 2 + 1, 2, SENTINEL_MUL, false},
+			{2, SIZE_MAX / 2 + 1, SENTINEL_MUL, false},
 		};
 		for (size_t i = 0; i < sizeof(over_cases) / sizeof(over_cases[0]); i++) {
 			result = SENTINEL_MUL;
@@ -629,7 +623,7 @@ static void test_safe_size_t_mul(void) {
  *---------------------------------------------------------------------------*/
 static void test_safe_size_t_align_up(void) {
 	size_t result;
-	bool   ret;
+	bool ret;
 
 	/* ---- align 为 0：结果为 x ---- */
 
@@ -804,29 +798,27 @@ static void test_safe_size_t_align_up(void) {
 
 	{
 		static const align_case_t cases[] = {
-			{ 0,      0,   0,    true },
-			{ 0,      1,   0,    true },
-			{ 0,      16,  0,    true },
-			{ 0,      7,   0,    true },
-			{ 81,     0,   81,   true },
-			{ 93,     1,   93,   true },
-			{ 131,    64,  192,  true },
-			{ 64,     8,   64,   true },
-			{ 128,    25,  150,  true },
-			{ 7,      10,  10,   true },
-			{ 105,    15,  105,  true },
-			{ 15,     15,  15,   true },
-			{ 7,      7,   7,    true },
-			{ SIZE_MAX, 1, SIZE_MAX, true },
-			{ SIZE_MAX, 0, SIZE_MAX, true },
+			{0, 0, 0, true},
+			{0, 1, 0, true},
+			{0, 16, 0, true},
+			{0, 7, 0, true},
+			{81, 0, 81, true},
+			{93, 1, 93, true},
+			{131, 64, 192, true},
+			{64, 8, 64, true},
+			{128, 25, 150, true},
+			{7, 10, 10, true},
+			{105, 15, 105, true},
+			{15, 15, 15, true},
+			{7, 7, 7, true},
+			{SIZE_MAX, 1, SIZE_MAX, true},
+			{SIZE_MAX, 0, SIZE_MAX, true},
 		};
 		for (size_t i = 0; i < sizeof(cases) / sizeof(cases[0]); i++) {
 			result = 0;
 			ret = safe_size_t_align_up(cases[i].x, cases[i].align, &result);
 			ASSERT_BOOL_IDX(cases[i].should_pass, ret, i);
-			if (cases[i].should_pass) {
-				ASSERT_EQ_SIZE_T_IDX(cases[i].expected, result, i);
-			}
+			if (cases[i].should_pass) { ASSERT_EQ_SIZE_T_IDX(cases[i].expected, result, i); }
 		}
 	}
 
@@ -834,10 +826,10 @@ static void test_safe_size_t_align_up(void) {
 
 	{
 		static const align_case_t over_cases[] = {
-			{ SIZE_MAX,     2,            SENTINEL_ALIGN, false },
-			{ SIZE_MAX,     8,            SENTINEL_ALIGN, false },
-			{ SIZE_MAX - 1, 4,            SENTINEL_ALIGN, false },
-			{ SIZE_MAX,     SIZE_MAX - 1, SENTINEL_ALIGN, false },
+			{SIZE_MAX, 2, SENTINEL_ALIGN, false},
+			{SIZE_MAX, 8, SENTINEL_ALIGN, false},
+			{SIZE_MAX - 1, 4, SENTINEL_ALIGN, false},
+			{SIZE_MAX, SIZE_MAX - 1, SENTINEL_ALIGN, false},
 		};
 		for (size_t i = 0; i < sizeof(over_cases) / sizeof(over_cases[0]); i++) {
 			result = SENTINEL_ALIGN;
