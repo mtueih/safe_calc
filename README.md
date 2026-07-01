@@ -41,7 +41,7 @@ include(cmake/CPM.cmake)
 CPMAddPackage(
 	NAME safe_calc
 	GITHUB_REPOSITORY mtueih/safe_calc
-	GIT_TAG v0.1.0
+	GIT_TAG v0.2.0
 	OPTIONS "SAFE_CALC_INSTALL OFF" "BUILD_TESTING OFF"
 )
 ```
