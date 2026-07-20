@@ -66,6 +66,11 @@ jobs:
 
       - uses: mozilla-actions/sccache-action@v0.0.10
 
+      - name: Check CMake version
+        run: cmake --version
+
+      - run: mkdir -p ${{ github.workspace }}/build
+
       - name: Configure CMake
         run: >
           cmake
