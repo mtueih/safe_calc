@@ -18,13 +18,10 @@
 git clone https://github.com/mtueih/safe_calc.git
 cd safe_calc
 
-# 创建构建目录。
-mkdir build && cd build
-
 # 配置并安装。
-cmake .. -DSAFE_CALC_INSTALL=ON -DBUILD_TESTING=OFF
-cmake --build .
-cmake --install .
+cmake . -B build -DSAFE_CALC_INSTALL=ON -DBUILD_TESTING=OFF
+cmake --build build
+cmake --install build
 ```
 
 ### CPM.cmake
@@ -33,10 +30,10 @@ cmake --install .
 
 - [CPM.cmake](https://github.com/cpm-cmake/CPM.cmake)。
 
-在 CMakeLists.txt 中添加以下内容：
+在 `CMakeLists.txt` 中添加以下内容：
 
 ```cmake
-include(cmake/CPM.cmake)
+include(${PROJECT_SOURCE_DIR}/cmake/CPM.cmake)
 
 CPMAddPackage(
 	NAME safe_calc

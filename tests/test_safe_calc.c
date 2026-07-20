@@ -860,29 +860,6 @@ static void test_safe_size_t_align_up(void) {
  * 主函数
  *---------------------------------------------------------------------------*/
 int main(void) {
-#if defined(__STDC_VERSION__)
-#if __STDC_VERSION__ >= 202311L
-#pragma message("Compiling with C23 support")
-	printf("C23\n");
-#elif __STDC_VERSION__ >= 201710L
-#pragma message("Compiling with C17/C18 support")
-	printf("C17\n");
-#elif __STDC_VERSION__ >= 201112L
-#pragma message("Compiling with C11 support")
-	printf("C11\n");
-#elif __STDC_VERSION__ >= 199901L
-#pragma message("Compiling with C99 support")
-	printf("C99\n");
-#else
-#pragma message("Compiling with pre-C99 support")
-	printf("Pre-C99\n");
-#endif
-#else
-#pragma message("Compiling with C89/C90 or unknown")
-	printf("C89/C90\n");
-#endif
-
-
 	printf("===== safe_calc - 主库单元测试 =====\n\n");
 
 	RUN_TEST(test_safe_size_t_add);
