@@ -83,7 +83,9 @@ jobs:
           -DCMAKE_C_COMPILER_LAUNCHER=sccache
 
       - name: Build
-        run: cmake --build build --parallel
+        working-directory: build
+        run: cmake --build . -- -j
 
       - name: CTest
-        run: ctest --test-dir build --output-on-failure
+        working-directory: build
+        run: ctest --output-on-failure
