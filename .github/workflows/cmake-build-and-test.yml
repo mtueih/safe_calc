@@ -55,6 +55,7 @@ jobs:
       SCCACHE_GHA_ENABLED: "true"
 
     steps:
+      # 准备工作。
       - uses: actions/checkout@v7
 
       - uses: jwlawson/actions-setup-cmake@v2
@@ -66,17 +67,13 @@ jobs:
 
       - uses: mozilla-actions/sccache-action@v0.0.10
 
-      - name: Check CMake version
-        run: cmake --version
-
-      - run: mkdir -p ${{ github.workspace }}/build
+      # 执行。
+      - run: mkdir build
 
       - name: Configure CMake
+        working-directory: build
         run: >
-          cmake
-          -S ${{ github.workspace }}
-          -B ${{ github.workspace }}/build
-          -G Ninja
+          cmake .. -G Ninja
           -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
           -DCMAKE_C_STANDARD=${{ matrix.c_standard }}
           -DCMAKE_C_STANDARD_REQUIRED=ON
@@ -86,7 +83,7 @@ jobs:
           -DCMAKE_C_COMPILER_LAUNCHER=sccache
 
       - name: Build
-        run: cmake --build ${{ github.workspace }}/build --parallel
+        run: cmake --build build --parallel
 
       - name: CTest
-        run: ctest --test-dir ${{ github.workspace }}/build --output-on-failure
+        run: ctest --test-dir build --output-on-failure
