@@ -84,7 +84,7 @@ jobs:
 
       - name: Build
         working-directory: build
-        run: cmake --build . -- -j
+        run: cmake --build .
 
       - name: CTest
         working-directory: build
