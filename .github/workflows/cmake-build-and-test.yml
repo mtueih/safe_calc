@@ -57,20 +57,20 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - uses: mozilla-actions/sccache-action@v0.0.10
-
-      - uses: ilammy/msvc-dev-cmd@v1
-        if: runner.os == 'Windows' && matrix.c_compiler == 'cl'
-
       - uses: jwlawson/actions-setup-cmake@v2
         with:
           cmake-version: '3.0.0'
 
+      - uses: ilammy/msvc-dev-cmd@v1
+        if: runner.os == 'Windows' && matrix.c_compiler == 'cl'
+
+      - uses: mozilla-actions/sccache-action@v0.0.10
+
       - name: Configure CMake
         run: >
           cmake
-          -S .
-          -B build
+          -S ${{ github.workspace }}
+          -B ${{ github.workspace }}/build
           -G Ninja
           -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
           -DCMAKE_C_STANDARD=${{ matrix.c_standard }}
@@ -81,7 +81,7 @@ jobs:
           -DCMAKE_C_COMPILER_LAUNCHER=sccache
 
       - name: Build
-        run: cmake --build build --parallel
+        run: cmake --build ${{ github.workspace }}/build --parallel
 
       - name: CTest
-        run: ctest --test-dir build --output-on-failure
+        run: ctest --test-dir ${{ github.workspace }}/build --output-on-failure
