@@ -16,24 +16,22 @@
  */
 
 
-/*=============================================================================
- * safe_calc - 主库单元测试
- *===========================================================================*/
+/*==============================================================================
+ * tests/test_safe_calc.c - 项目主库单元测试文件
+ *============================================================================*/
+#include "safe_calc.h"
 
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "safe_calc.h"
 
-
-/*-----------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
  * 宏定义
- *---------------------------------------------------------------------------*/
-
-/*
- * C23 标准引入了 nullptr 关键字，因此当在 C23 及以上标准时将宏定义为 nullptr，
- * 否则定义为 NULL。
+ *----------------------------------------------------------------------------*/
+/**
+ * C23 标准引入了 nullptr 关键字，因此条件定义一个宏，
+ * 在 C23 及以上标准时将宏定义为 nullptr，否则定义为 NULL。
  */
 #if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 202311L
 #  define SAFE_CALC_NULLPTR nullptr
@@ -54,10 +52,9 @@
 #define SENTINEL_ALIGN ((size_t)0xFEED)
 
 
-/*-----------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
  * 测试运行器：将全局状态封装为结构体，便于未来多文件/多线程扩展
- *---------------------------------------------------------------------------*/
-
+ *----------------------------------------------------------------------------*/
 typedef struct {
 	int assert_total;
 	int assert_fail;
@@ -68,13 +65,13 @@ typedef struct {
 static test_runner_t g_runner = {0, 0, 0, 0};
 
 
-/*-----------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
  * 断言宏
  *
  * 注意：ASSERT_EQ_SIZE_T 内部使用 (size_t) 强制转换，调用方应确保传入的
  * 期望值表达式本身为无符号语义。表驱动测试结构体中的 expected 字段已声明为
  * size_t 类型，杜绝了负数被静默转换为 SIZE_MAX 的风险。
- *---------------------------------------------------------------------------*/
+ *----------------------------------------------------------------------------*/
 
 #define ASSERT_TRUE(expr) do { \
 	g_runner.assert_total++; \
@@ -164,11 +161,11 @@ static test_runner_t g_runner = {0, 0, 0, 0};
 } while (0)
 
 
-/*-----------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
  * 辅助结构体：用于表驱动测试
  *
  * expected 字段声明为 size_t，杜绝负数被静默转换为 SIZE_MAX 的风险。
- *---------------------------------------------------------------------------*/
+ *----------------------------------------------------------------------------*/
 
 typedef struct {
 	size_t a;
@@ -192,12 +189,12 @@ typedef struct {
 } align_case_t;
 
 
-/*-----------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
  * safe_size_t_add 测试
  *
  * 覆盖：正常加法、含 0、边界（刚好不溢出）、溢出（多种组合）、
  *       交换律、空指针安全性。
- *---------------------------------------------------------------------------*/
+ *----------------------------------------------------------------------------*/
 static void test_safe_size_t_add(void) {
 	size_t result;
 	bool ret;
@@ -300,7 +297,9 @@ static void test_safe_size_t_add(void) {
 			result = 0;
 			ret = safe_size_t_add(cases[i].a, cases[i].b, &result);
 			ASSERT_BOOL_IDX(cases[i].should_pass, ret, i);
-			if (cases[i].should_pass) { ASSERT_EQ_SIZE_T_IDX(cases[i].expected, result, i); }
+			if (cases[i].should_pass) {
+				ASSERT_EQ_SIZE_T_IDX(cases[i].expected, result, i);
+			}
 		}
 	}
 
@@ -335,12 +334,12 @@ static void test_safe_size_t_add(void) {
 }
 
 
-/*-----------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
  * safe_size_t_sub 测试
  *
  * 覆盖：正常减法、结果为 0、减 0、0-0、下溢（多种组合）、
  *       SIZE_MAX 相关边界、空指针安全性。
- *---------------------------------------------------------------------------*/
+ *----------------------------------------------------------------------------*/
 static void test_safe_size_t_sub(void) {
 	size_t result;
 	bool ret;
@@ -425,7 +424,9 @@ static void test_safe_size_t_sub(void) {
 			result = 0;
 			ret = safe_size_t_sub(cases[i].a, cases[i].b, &result);
 			ASSERT_BOOL_IDX(cases[i].should_pass, ret, i);
-			if (cases[i].should_pass) { ASSERT_EQ_SIZE_T_IDX(cases[i].expected, result, i); }
+			if (cases[i].should_pass) {
+				ASSERT_EQ_SIZE_T_IDX(cases[i].expected, result, i);
+			}
 		}
 	}
 
@@ -459,12 +460,12 @@ static void test_safe_size_t_sub(void) {
 }
 
 
-/*-----------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
  * safe_size_t_mul 测试
  *
  * 覆盖：正常乘法、含 0/含 1、边界（刚好不溢出）、溢出（多种组合）、
  *       交换律、空指针安全性。
- *---------------------------------------------------------------------------*/
+ *----------------------------------------------------------------------------*/
 static void test_safe_size_t_mul(void) {
 	size_t result;
 	bool ret;
@@ -571,7 +572,9 @@ static void test_safe_size_t_mul(void) {
 			result = 0;
 			ret = safe_size_t_mul(cases[i].a, cases[i].b, &result);
 			ASSERT_BOOL_IDX(cases[i].should_pass, ret, i);
-			if (cases[i].should_pass) { ASSERT_EQ_SIZE_T_IDX(cases[i].expected, result, i); }
+			if (cases[i].should_pass) {
+				ASSERT_EQ_SIZE_T_IDX(cases[i].expected, result, i);
+			}
 		}
 	}
 
@@ -609,7 +612,7 @@ static void test_safe_size_t_mul(void) {
 }
 
 
-/*-----------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
  * safe_size_t_align_up 测试
  *
  * 覆盖：
@@ -620,7 +623,7 @@ static void test_safe_size_t_mul(void) {
  *
  * 注意：所有测试用例均不依赖 size_t 的具体位宽（不假定 16/32/64 位），
  * 仅依赖 SIZE_MAX 为全 1（奇数）且位宽 ≥ 16 这一确定事实。
- *---------------------------------------------------------------------------*/
+ *----------------------------------------------------------------------------*/
 static void test_safe_size_t_align_up(void) {
 	size_t result;
 	bool ret;
@@ -818,7 +821,9 @@ static void test_safe_size_t_align_up(void) {
 			result = 0;
 			ret = safe_size_t_align_up(cases[i].x, cases[i].align, &result);
 			ASSERT_BOOL_IDX(cases[i].should_pass, ret, i);
-			if (cases[i].should_pass) { ASSERT_EQ_SIZE_T_IDX(cases[i].expected, result, i); }
+			if (cases[i].should_pass) {
+				ASSERT_EQ_SIZE_T_IDX(cases[i].expected, result, i);
+			}
 		}
 	}
 
@@ -834,7 +839,10 @@ static void test_safe_size_t_align_up(void) {
 		for (size_t i = 0; i < sizeof(over_cases) / sizeof(over_cases[0]); i++) {
 			result = SENTINEL_ALIGN;
 			ret = safe_size_t_align_up(
-				over_cases[i].x, over_cases[i].align, &result);
+				over_cases[i].x,
+				over_cases[i].align,
+				&result
+			);
 			ASSERT_BOOL_IDX(over_cases[i].should_pass, ret, i);
 			ASSERT_EQ_SIZE_T_IDX(SENTINEL_ALIGN, result, i);
 		}
@@ -856,9 +864,9 @@ static void test_safe_size_t_align_up(void) {
 }
 
 
-/*-----------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
  * 主函数
- *---------------------------------------------------------------------------*/
+ *----------------------------------------------------------------------------*/
 int main(void) {
 	printf("===== safe_calc - 主库单元测试 =====\n\n");
 
@@ -867,10 +875,14 @@ int main(void) {
 	RUN_TEST(test_safe_size_t_mul);
 	RUN_TEST(test_safe_size_t_align_up);
 
-	printf("\n===== 结果：%d 个断言，%d 个失败，"
-	       "%d 个函数通过，%d 个函数失败 =====\n",
-	       g_runner.assert_total, g_runner.assert_fail,
-	       g_runner.func_pass, g_runner.func_fail);
+	printf(
+		"\n===== 结果：%d 个断言，%d 个失败，"
+		"%d 个函数通过，%d 个函数失败 =====\n",
+		g_runner.assert_total,
+		g_runner.assert_fail,
+		g_runner.func_pass,
+		g_runner.func_fail
+	);
 
 	return g_runner.assert_fail > 0 ? EXIT_FAILURE : EXIT_SUCCESS;
 }

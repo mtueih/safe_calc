@@ -16,13 +16,22 @@
  */
 
 
+/*==============================================================================
+ * src/safe_calc.c - 项目主库实现文件
+ *============================================================================*/
 #include "safe_calc.h"
 
 #include <limits.h>
 #include <stdint.h>
 
 
-/* C23 标准引入了 nullptr 关键字，因此当在 C23 及以上标准时将宏定义为 nullptr，否则定义为 NULL。 */
+/*------------------------------------------------------------------------------
+ * 宏定义
+ *----------------------------------------------------------------------------*/
+/**
+ * C23 标准引入了 nullptr 关键字，因此条件定义一个宏，
+ * 在 C23 及以上标准时将宏定义为 nullptr，否则定义为 NULL。
+ */
 #if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 202311L
 #  define SAFE_CALC_NULLPTR nullptr
 #else
@@ -30,9 +39,9 @@
 #endif
 
 
-/*-----------------------------------------------------------------------------
- * API 函数定义。
- *---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------
+ * API 函数定义
+ *----------------------------------------------------------------------------*/
 
 /* size_t 加法。 */
 
@@ -46,7 +55,9 @@ bool safe_size_t_add(
 		return false; /* 溢出。 */
 	}
 
-	if (result != SAFE_CALC_NULLPTR) { *result = a + b; }
+	if (result != SAFE_CALC_NULLPTR) {
+		*result = a + b;
+	}
 
 	return true;
 }
@@ -63,7 +74,9 @@ bool safe_size_t_sub(
 		return false; /* 溢出。 */
 	}
 
-	if (result != SAFE_CALC_NULLPTR) { *result = a - b; }
+	if (result != SAFE_CALC_NULLPTR) {
+		*result = a - b;
+	}
 
 	return true;
 }
@@ -77,7 +90,9 @@ bool safe_size_t_mul(
 	size_t *const result
 ) {
 	if (a == 0 || b == 0) {
-		if (result != SAFE_CALC_NULLPTR) { *result = 0; }
+		if (result != SAFE_CALC_NULLPTR) {
+			*result = 0;
+		}
 
 		return true;
 	}
@@ -86,7 +101,9 @@ bool safe_size_t_mul(
 		return false; /* 溢出。 */
 	}
 
-	if (result != SAFE_CALC_NULLPTR) { *result = a * b; }
+	if (result != SAFE_CALC_NULLPTR) {
+		*result = a * b;
+	}
 
 	return true;
 }
@@ -101,7 +118,9 @@ bool safe_size_t_align_up(
 ) {
 	/* 防止除 0，且将 align 为 0 视为“不对齐到任何值”，则结果为 x。 */
 	if (align == 0) {
-		if (result != SAFE_CALC_NULLPTR) { *result = x; }
+		if (result != SAFE_CALC_NULLPTR) {
+			*result = x;
+		}
 
 		return true;
 	}
@@ -114,7 +133,9 @@ bool safe_size_t_align_up(
 	if ((align & align_mask) == 0) {
 		/* 如果 x 已是 align 的倍数，则结果为 x，无须再计算。 */
 		if ((x & align_mask) == 0) {
-			if (result != SAFE_CALC_NULLPTR) { *result = x; }
+			if (result != SAFE_CALC_NULLPTR) {
+				*result = x;
+			}
 
 			return true;
 		}
@@ -124,7 +145,9 @@ bool safe_size_t_align_up(
 			return false; /* 溢出，无法对齐。 */
 		}
 
-		if (result != SAFE_CALC_NULLPTR) { *result = (x + align_mask) & ~align_mask; }
+		if (result != SAFE_CALC_NULLPTR) {
+			*result = (x + align_mask) & ~align_mask;
+		}
 
 		return true;
 	}
@@ -134,7 +157,9 @@ bool safe_size_t_align_up(
 	const size_t remainder = x % align;
 
 	if (remainder == 0) {
-		if (result != SAFE_CALC_NULLPTR) { *result = x; }
+		if (result != SAFE_CALC_NULLPTR) {
+			*result = x;
+		}
 
 		return true;
 	}
@@ -147,7 +172,9 @@ bool safe_size_t_align_up(
 		return false; /* 加法溢出。 */
 	}
 
-	if (result != SAFE_CALC_NULLPTR) { *result = x + offset; }
+	if (result != SAFE_CALC_NULLPTR) {
+		*result = x + offset;
+	}
 
 	return true;
 }
