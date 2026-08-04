@@ -58,30 +58,12 @@ bool safe_size_t_add(
 	size_t *const result
 ) {
 	if (a > SIZE_MAX - b) {
-		return false; /* 溢出。 */
+		/* 溢出。 */
+		return false;
 	}
 
 	if (result != SAFE_CALC_NULLPTR) {
 		*result = a + b;
-	}
-
-	return true;
-}
-
-/* size_t 减法。 */
-
-/* 安全地执行【size_t 减法】，防止下溢。 */
-bool safe_size_t_sub(
-	const size_t a,
-	const size_t b,
-	size_t *const result
-) {
-	if (a < b) {
-		return false; /* 溢出。 */
-	}
-
-	if (result != SAFE_CALC_NULLPTR) {
-		*result = a - b;
 	}
 
 	return true;
@@ -104,7 +86,8 @@ bool safe_size_t_mul(
 	}
 
 	if (b > SIZE_MAX / a) {
-		return false; /* 溢出。 */
+		/* 溢出。 */
+		return false;
 	}
 
 	if (result != SAFE_CALC_NULLPTR) {
@@ -148,7 +131,8 @@ bool safe_size_t_align_up(
 
 		/* 安全检查：【size_t 加法】（x + align - 1），即（x + align_mask）是否会溢出。 */
 		if (!safe_size_t_add(x, align_mask, SAFE_CALC_NULLPTR)) {
-			return false; /* 溢出，无法对齐。 */
+			/* 溢出，无法对齐。 */
+			return false;
 		}
 
 		if (result != SAFE_CALC_NULLPTR) {
@@ -175,7 +159,8 @@ bool safe_size_t_align_up(
 
 	/* 安全检查：【size_t 加法】（x + offset）是否会溢出。 */
 	if (!safe_size_t_add(x, offset, SAFE_CALC_NULLPTR)) {
-		return false; /* 加法溢出。 */
+		/* 加法溢出。 */
+		return false;
 	}
 
 	if (result != SAFE_CALC_NULLPTR) {

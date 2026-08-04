@@ -65,29 +65,6 @@ bool safe_size_t_add(
 	size_t *result
 );
 
-/* size_t 减法。 */
-
-/**
- * @brief
- * 安全地执行【size_t 减法】，防止下溢。
- *
- * @param a
- * 第一个操作数。
- * @param b
- * 第二个操作数。
- * @param result
- * 指向「存储执行结果的 size_t 变量」的指针。
- * 为空指针或会溢出时不写入。
- *
- * @return
- * 如果没溢出则返回 true，否则返回 false。
- */
-bool safe_size_t_sub(
-	size_t a,
-	size_t b,
-	size_t *result
-);
-
 /* size_t 乘法。 */
 
 /**
