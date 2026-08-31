@@ -1,4 +1,4 @@
-**English** | [简体中文](README.zh-CN.md)
+[English](README.md) | **简体中文**
 
 # safe_calc
 
@@ -7,22 +7,22 @@
 [![GitHub License](https://img.shields.io/github/license/mtueih/safe_calc)](LICENSE)
 [![CI](https://github.com/mtueih/safe_calc/actions/workflows/ci.yml/badge.svg)](https://github.com/mtueih/safe_calc/actions/workflows/ci.yml)
 
-A C library for safe calculation, primarily used to prevent various arithmetic overflows.
+一个 C 语言安全计算库，主要用于防止各种算数溢出。
 
-## Installation
+## 安装
 
 ### CMake
 
-Requirements:
+环境要求：
 
-- [CMake](https://cmake.org/) 3.21 or later.
+- [CMake](https://cmake.org/) 3.21 或更高版本。
 
 ```bash
-# Clone the repository.
+# 克隆仓库。
 git clone https://github.com/mtueih/safe_calc.git
 cd safe_calc
 
-# Configure and install.
+# 配置并安装。
 cmake . -B build -DSAFE_CALC_INSTALL=ON -DBUILD_TESTING=OFF
 cmake --build build
 cmake --install build
@@ -30,11 +30,11 @@ cmake --install build
 
 ### CPM.cmake
 
-Requirements:
+环境要求：
 
-- [CPM.cmake](https://github.com/cpm-cmake/CPM.cmake).
+- [CPM.cmake](https://github.com/cpm-cmake/CPM.cmake)。
 
-Add the following to your `CMakeLists.txt`:
+在 `CMakeLists.txt` 中添加以下内容：
 
 ```cmake
 include(${PROJECT_SOURCE_DIR}/cmake/CPM.cmake)
@@ -47,11 +47,11 @@ CPMAddPackage(
 )
 ```
 
-## Usage
+## 使用
 
 ### CMake
 
-Add the following to your `CMakeLists.txt`:
+在 `CMakeLists.txt` 中添加以下内容：
 
 ```cmake
 find_package(safe_calc REQUIRED)
@@ -59,7 +59,7 @@ find_package(safe_calc REQUIRED)
 target_link_libraries(your_target PRIVATE safe_calc::safe_calc)
 ```
 
-## Example
+## 示例
 
 ```c
 #include <safe_calc.h>
@@ -71,12 +71,12 @@ int main(void) {
 	a = 1;
 	b = 2;
 
-	/* Check only. */
+	/* 仅判断。 */
 	if (safe_size_t_add(a, b, NULL)) {
-		printf("%zu + %zu will not overflow.\n", a, b);
+		printf("【%zu + %zu】不会溢出。\n", a, b);
 	}
 
-	/* Calculate. */
+	/* 计算。 */
 	if (safe_size_t_add(a, b, &result)) {
 		printf("%zu + %zu = %zu\n", a, b, result);
 	}
@@ -85,10 +85,10 @@ int main(void) {
 }
 ```
 
-## Documentation
+## 文档
 
-- [API Reference](docs/api-reference.md).
+- [API 参考](docs/api-reference.zh-CN.md)。
 
-## License
+## 许可协议
 
-This project is licensed under the [ISC License](https://www.isc.org/licenses/) — see the [LICENSE](LICENSE) file for details.
+本项目采用 [ISC许可证](https://www.isc.org/licenses/) 授权——详情请参阅 [LICENSE](LICENSE) 文件。
