@@ -16,10 +16,9 @@ Safely perform a `size_t` addition, preventing overflow.
 
 ```c
 bool safe_size_t_add(
-	size_t a,
-	size_t b,
-	size_t *result
-);
+    size_t a,
+    size_t b,
+    size_t *result);
 ```
 
 Parameters
@@ -48,10 +47,9 @@ Safely perform a `size_t` multiplication, preventing overflow.
 
 ```c
 bool safe_size_t_mul(
-	size_t a,
-	size_t b,
-	size_t *result
-);
+    size_t a,
+    size_t b,
+    size_t *result);
 ```
 
 Parameters
@@ -80,9 +78,9 @@ Safely align a `size_t` up to a multiple of a value, preventing overflow.
 
 ```c
 bool safe_size_t_align_up(
-	size_t x,
-	size_t align,
-	size_t *result
+ size_t x,
+ size_t align,
+ size_t *result
 );
 ```
 

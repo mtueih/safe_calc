@@ -15,6 +15,12 @@
 cmake_minimum_required(VERSION 3.21)
 project(safe_calc VERSION 0.2.2 LANGUAGES C)
 
+if(NOT CMAKE_C_STANDARD)
+    set(CMAKE_C_STANDARD 99)
+endif()
+set(CMAKE_C_STANDARD_REQUIRED ON)
+set(CMAKE_C_EXTENSIONS OFF)
+
 
 #-------------------------------------------------------------------------------
 # 全局变量定义
@@ -24,9 +30,10 @@ project(safe_calc VERSION 0.2.2 LANGUAGES C)
 #   2. MAIN_LIB_TARGET_NAME：项目主库的目标名称。
 #   3. SAFE_CALC_INSTALL：是否启用安装。
 #-------------------------------------------------------------------------------
+option(SAFE_CALC_INSTALL "Whether to enable installation." ${PROJECT_IS_TOP_LEVEL})
+
 set(MAIN_PACKAGE_NAME ${PROJECT_NAME})
 set(MAIN_LIB_TARGET_NAME ${PROJECT_NAME})
-option(SAFE_CALC_INSTALL "Enable installation." OFF)
 
 
 #-------------------------------------------------------------------------------
@@ -40,10 +47,10 @@ option(SAFE_CALC_INSTALL "Enable installation." OFF)
 #-------------------------------------------------------------------------------
 include(CTest)
 
-if (SAFE_CALC_INSTALL)
-	include(GNUInstallDirs)
-	include(CMakePackageConfigHelpers)
-endif ()
+if(SAFE_CALC_INSTALL)
+    include(GNUInstallDirs)
+    include(CMakePackageConfigHelpers)
+endif()
 
 
 #-------------------------------------------------------------------------------
@@ -55,47 +62,44 @@ add_subdirectory(src)
 #-------------------------------------------------------------------------------
 # 测试构建
 #-------------------------------------------------------------------------------
-# 注意：可通过设置 -DBUILD_TESTING=OFF 跳过测试构建。
-#-------------------------------------------------------------------------------
-if (BUILD_TESTING)
-	add_subdirectory(tests)
-endif ()
+if(BUILD_TESTING)
+    add_subdirectory(tests)
+endif()
 
 
 #-------------------------------------------------------------------------------
 # 包配置与安装
 #-------------------------------------------------------------------------------
-if (SAFE_CALC_INSTALL)
-	# 生成并安装项目目标集文件。
-	install(EXPORT ${MAIN_PACKAGE_NAME}Targets
-		FILE ${MAIN_PACKAGE_NAME}Targets.cmake
-		NAMESPACE ${MAIN_PACKAGE_NAME}::
-		DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${MAIN_PACKAGE_NAME}
-	)
+if(SAFE_CALC_INSTALL)
+    # 生成并安装项目目标集文件。
+    install(
+        EXPORT ${MAIN_PACKAGE_NAME}Targets
+        FILE ${MAIN_PACKAGE_NAME}Targets.cmake
+        NAMESPACE mtueih::
+        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${MAIN_PACKAGE_NAME})
 
-	# 从模板文件生成包配置文件。
-	configure_package_config_file(
-		# 模板文件（${PROJECT_SOURCE_DIR}/cmake/${MAIN_PACKAGE_NAME}Config.cmake.in），
-		# 需要手动编写。
-		${PROJECT_SOURCE_DIR}/cmake/${MAIN_PACKAGE_NAME}Config.cmake.in
+    # 从模板文件生成包配置文件。
+    configure_package_config_file(
+        # 模板文件（${PROJECT_SOURCE_DIR}/cmake/${MAIN_PACKAGE_NAME}Config.cmake.in），
+        # 需要手动编写。
+        ${PROJECT_SOURCE_DIR}/cmake/${MAIN_PACKAGE_NAME}Config.cmake.in
 
-		${PROJECT_BINARY_DIR}/${MAIN_PACKAGE_NAME}Config.cmake
-		INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${MAIN_PACKAGE_NAME}
-	)
+        ${PROJECT_BINARY_DIR}/${MAIN_PACKAGE_NAME}Config.cmake
+        INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${MAIN_PACKAGE_NAME}
+    )
 
-	# 生成包版本文件。
-	write_basic_package_version_file(
-		${PROJECT_BINARY_DIR}/${MAIN_PACKAGE_NAME}ConfigVersion.cmake
-		VERSION ${PROJECT_VERSION}
+    # 生成包版本文件。
+    write_basic_package_version_file(
+        ${PROJECT_BINARY_DIR}/${MAIN_PACKAGE_NAME}ConfigVersion.cmake
+        VERSION ${PROJECT_VERSION}
 
-		# 兼容性设置为 SameMajorVersion，表示主版本号相同则兼容。
-		COMPATIBILITY SameMajorVersion
-	)
+        # 兼容性设置为 SameMajorVersion，表示主版本号相同则兼容。
+        COMPATIBILITY SameMajorVersion)
 
-	# 将生成的包配置文件和包版本文件安装到标准 CMake 包目录。
-	install(FILES
-		${PROJECT_BINARY_DIR}/${MAIN_PACKAGE_NAME}Config.cmake
-		${PROJECT_BINARY_DIR}/${MAIN_PACKAGE_NAME}ConfigVersion.cmake
-		DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${MAIN_PACKAGE_NAME}
-	)
-endif ()
+    # 将生成的包配置文件和包版本文件安装到标准 CMake 包目录。
+    install(
+        FILES
+        ${PROJECT_BINARY_DIR}/${MAIN_PACKAGE_NAME}Config.cmake
+        ${PROJECT_BINARY_DIR}/${MAIN_PACKAGE_NAME}ConfigVersion.cmake
+        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${MAIN_PACKAGE_NAME})
+endif()

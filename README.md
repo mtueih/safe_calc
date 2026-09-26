@@ -2,7 +2,7 @@
 
 # safe_calc
 
-[![C Standard](https://img.shields.io/badge/C-C99/C11/C17/C23-blue.svg)](https://en.cppreference.com/c)
+[![C Standard](https://img.shields.io/badge/C-C99+-blue.svg)](https://en.cppreference.com/c)
 [![CMake](https://img.shields.io/badge/CMake-3.21+-green.svg)](https://cmake.org/)
 [![GitHub License](https://img.shields.io/github/license/mtueih/safe_calc)](LICENSE)
 [![CI](https://github.com/mtueih/safe_calc/actions/workflows/ci.yml/badge.svg)](https://github.com/mtueih/safe_calc/actions/workflows/ci.yml)
@@ -40,10 +40,10 @@ Add the following to your `CMakeLists.txt`:
 include(${PROJECT_SOURCE_DIR}/cmake/CPM.cmake)
 
 CPMAddPackage(
-	NAME safe_calc
-	GITHUB_REPOSITORY mtueih/safe_calc
-	GIT_TAG v0.2.2
-	OPTIONS "SAFE_CALC_INSTALL OFF" "BUILD_TESTING OFF"
+ NAME safe_calc
+ GITHUB_REPOSITORY mtueih/safe_calc
+ GIT_TAG v0.2.2
+ OPTIONS "SAFE_CALC_INSTALL OFF" "BUILD_TESTING OFF"
 )
 ```
 
@@ -65,23 +65,26 @@ target_link_libraries(your_target PRIVATE safe_calc::safe_calc)
 #include <safe_calc.h>
 #include <stddef.h>
 
-int main(void) {
-	size_t a, b, result;
+int main(void)
+{
+    size_t a, b, result;
 
-	a = 1;
-	b = 2;
+    a = 1;
+    b = 2;
 
-	/* Check only. */
-	if (safe_size_t_add(a, b, NULL)) {
-		printf("%zu + %zu will not overflow.\n", a, b);
-	}
+    /* Check only. */
+    if (safe_size_t_add(a, b, NULL))
+    {
+        printf("%zu + %zu will not overflow.\n", a, b);
+    }
 
-	/* Calculate. */
-	if (safe_size_t_add(a, b, &result)) {
-		printf("%zu + %zu = %zu\n", a, b, result);
-	}
+    /* Calculate. */
+    if (safe_size_t_add(a, b, &result))
+    {
+        printf("%zu + %zu = %zu\n", a, b, result);
+    }
 
-	return 0;
+    return 0;
 }
 ```
 

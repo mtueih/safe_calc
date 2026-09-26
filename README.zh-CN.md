@@ -3,11 +3,11 @@
 # safe_calc
 
 [![C Standard](https://img.shields.io/badge/C-C99/C11/C17/C23-blue.svg)](https://zh.cppreference.com/c)
-[![CMake](https://img.shields.io/badge/CMake-3.21+-green.svg)](https://cmake.org/)
+[![CMake](https://img.shields.io/badge/CMake-3.24+-green.svg)](https://cmake.org/)
 [![GitHub License](https://img.shields.io/github/license/mtueih/safe_calc)](LICENSE)
 [![CI](https://github.com/mtueih/safe_calc/actions/workflows/ci.yml/badge.svg)](https://github.com/mtueih/safe_calc/actions/workflows/ci.yml)
 
-一个 C 语言安全计算库，主要用于防止各种算数溢出。
+一个用于安全数值计算的 C 纯头文件库，主要用于防止各种算数溢出。
 
 ## 安装
 
