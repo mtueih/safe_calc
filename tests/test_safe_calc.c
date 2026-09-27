@@ -1,209 +1,550 @@
+/*
+ * SPDX-FileCopyrightText: 2026 mtueih
+ * SPDX-License-Identifier: ISC
+ */
+
 /*==============================================================================
  * tests/test_safe_calc.c - 项目主库单元测试文件
  *============================================================================*/
 
-
 /*------------------------------------------------------------------------------
  * 头文件包含
  *----------------------------------------------------------------------------*/
-#include "safe_calc.h"
+#include "safe_calc/safe_calc.h"
 
-#include <stdint.h>
-#include <stdio.h>
-#include <stdlib.h>
-
-/**
- * C23 标准已将 bool/true/false 收为内置关键字，
- * 因此按标准仅需在 C23 之前包含 stdbool.h。
- */
-#if !defined(__STDC_VERSION__) || \
-    (defined(__STDC_VERSION__) && __STDC_VERSION__ < 202311L)
-#  include <stdbool.h>
-#endif
-
+#include <unity.h>
 
 /*------------------------------------------------------------------------------
- * 宏定义
+ * Unity 测试框架需要的函数定义
  *----------------------------------------------------------------------------*/
+void setUp(void)
+{
+}
 
-/**
- * C23 标准引入了 nullptr 关键字，因此条件定义一个宏，
- * 在 C23 及以上标准时将宏定义为 nullptr，否则定义为 NULL。
- */
-#if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 202311L
-#  define SAFE_CALC_NULLPTR nullptr
-#else
-#  define SAFE_CALC_NULLPTR NULL
-#endif
-
-/* 测试函数数量。 */
-#define TEST_COUNT 3
-
-
-/*------------------------------------------------------------------------------
- * 测试静态函数声明
- *----------------------------------------------------------------------------*/
-
-/* size_t 加法（safe_size_t_add）测试。 */
-static bool test_safe_size_t_add(void);
-
-/* size_t 乘法（safe_size_t_mul）测试。 */
-static bool test_safe_size_t_mul(void);
-
-/* size_t 向上对齐（safe_size_t_align_up）测试。 */
-static bool test_safe_size_t_align_up(void);
-
-
-/*------------------------------------------------------------------------------
- * 主函数
- *----------------------------------------------------------------------------*/
-int main(void) {
-	unsigned fail_count = 0;
-
-	printf("======== safe_calc 单元测试 ========\n");
-
-	fail_count += test_safe_size_t_add() ? 0 : 1;
-	fail_count += test_safe_size_t_mul() ? 0 : 1;
-	fail_count += test_safe_size_t_align_up() ? 0 : 1;
-
-	printf(
-		"\n---- safe_calc 单元测试结束 ----\n"
-		"- 共 %d 个测试函数  ✔ %u 个成功  ✘ %u 个失败\n",
-		TEST_COUNT, TEST_COUNT - fail_count, fail_count
-	);
-
-	return (fail_count > 0) ? EXIT_FAILURE : EXIT_SUCCESS;
+void tearDown(void)
+{
 }
 
 /*------------------------------------------------------------------------------
- * 测试静态函数定义
+ * 单元测试函数生成宏
  *----------------------------------------------------------------------------*/
 
-/* size_t 加法（safe_size_t_add）测试。 */
-static bool test_safe_size_t_add(void) {
-	size_t res = 0;
+/* 无符号整数系列。 */
 
-	printf("\n➤【size_t 加法】测试\n");
+/* 无符号整数-安全加法-测试函数生成宏。 */
+#define SAFE_CALC_UNSIGNED_ADD_TEST_FN_GEN(name, type, max)                                                            \
+    void test_safe_##name##_add(void)                                                                                  \
+    {                                                                                                                  \
+        type result;                                                                                                   \
+                                                                                                                       \
+        /* Normal case. */                                                                                             \
+        TEST_ASSERT_EQUAL_INT(SAFE_CALC_OK, safe_##name##_add((type)10, (type)5, &result));                            \
+        TEST_ASSERT_TRUE(result == (type)15);                                                                          \
+                                                                                                                       \
+        /* Lower boundary. */                                                                                          \
+        TEST_ASSERT_EQUAL_INT(SAFE_CALC_OK, safe_##name##_add((type)0, (type)0, &result));                             \
+        TEST_ASSERT_TRUE(result == (type)0);                                                                           \
+                                                                                                                       \
+        /* Upper boundary: (MAX - 1) + 1 == MAX. */                                                                    \
+        TEST_ASSERT_EQUAL_INT(SAFE_CALC_OK, safe_##name##_add((type)((max) - 1), (type)1, &result));                   \
+        TEST_ASSERT_TRUE(result == (type)(max));                                                                       \
+                                                                                                                       \
+        /* Overflow: MAX + 1. */                                                                                       \
+        TEST_ASSERT_EQUAL_INT(SAFE_CALC_OVERFLOW, safe_##name##_add((type)(max), (type)1, &result));                   \
+                                                                                                                       \
+        /* NULL result is valid on success. */                                                                         \
+        TEST_ASSERT_EQUAL_INT(SAFE_CALC_OK, safe_##name##_add((type)10, (type)5, NULL));                               \
+                                                                                                                       \
+        /* NULL result is also valid on error. */                                                                      \
+        TEST_ASSERT_EQUAL_INT(SAFE_CALC_OVERFLOW, safe_##name##_add((type)(max), (type)1, NULL));                      \
+    }
 
-	/* 正常加法测试。 */
-	if (!safe_size_t_add(1, 1, &res)) {
-		fprintf(
-			stderr, "\n\t正常加法（1 + 1）测试失败：\n"
-			"\t返回值（false）不符合预期（true）！\n"
-		);
-		return false;
-	}
+/* 无符号整数-安全减法-测试函数生成宏。 */
+#define SAFE_CALC_UNSIGNED_SUB_TEST_FN_GEN(name, type, max)                                                            \
+    void test_safe_##name##_sub(void)                                                                                  \
+    {                                                                                                                  \
+        type result;                                                                                                   \
+                                                                                                                       \
+        /* Normal case. */                                                                                             \
+        TEST_ASSERT_EQUAL_INT(SAFE_CALC_OK, safe_##name##_sub((type)10, (type)5, &result));                            \
+        TEST_ASSERT_TRUE(result == (type)5);                                                                           \
+                                                                                                                       \
+        /* Lower boundary: 0 - 0 == 0. */                                                                              \
+        TEST_ASSERT_EQUAL_INT(SAFE_CALC_OK, safe_##name##_sub((type)0, (type)0, &result));                             \
+        TEST_ASSERT_TRUE(result == (type)0);                                                                           \
+                                                                                                                       \
+        /* Upper boundary: MAX - 0 == MAX. */                                                                          \
+        TEST_ASSERT_EQUAL_INT(SAFE_CALC_OK, safe_##name##_sub((type)(max), (type)0, &result));                         \
+        TEST_ASSERT_TRUE(result == (type)(max));                                                                       \
+                                                                                                                       \
+        /* Boundary: 1 - 1 == 0. */                                                                                    \
+        TEST_ASSERT_EQUAL_INT(SAFE_CALC_OK, safe_##name##_sub((type)1, (type)1, &result));                             \
+        TEST_ASSERT_TRUE(result == (type)0);                                                                           \
+                                                                                                                       \
+        /* Underflow: 0 - 1. */                                                                                        \
+        TEST_ASSERT_EQUAL_INT(SAFE_CALC_OVERFLOW, safe_##name##_sub((type)0, (type)1, &result));                       \
+                                                                                                                       \
+        /* NULL result is valid on success. */                                                                         \
+        TEST_ASSERT_EQUAL_INT(SAFE_CALC_OK, safe_##name##_sub((type)10, (type)5, NULL));                               \
+                                                                                                                       \
+        /* NULL result is also valid on error. */                                                                      \
+        TEST_ASSERT_EQUAL_INT(SAFE_CALC_OVERFLOW, safe_##name##_sub((type)0, (type)1, NULL));                          \
+    }
 
-	if (res != 2) {
-		fprintf(
-			stderr, "\n\t正常加法（1 + 1）测试失败：\n"
-			"\t计算结果（%zu）不符合预期（2）！\n", res
-		);
-		return false;
-	}
+/* 无符号整数-安全乘法-测试函数生成宏。 */
+#define SAFE_CALC_UNSIGNED_MUL_TEST_FN_GEN(name, type, max)                                                            \
+    void test_safe_##name##_mul(void)                                                                                  \
+    {                                                                                                                  \
+        type result;                                                                                                   \
+                                                                                                                       \
+        /* Normal case. */                                                                                             \
+        TEST_ASSERT_EQUAL_INT(SAFE_CALC_OK, safe_##name##_mul((type)10, (type)5, &result));                            \
+        TEST_ASSERT_TRUE(result == (type)50);                                                                          \
+                                                                                                                       \
+        /* Upper boundary: MAX * 1 == MAX. */                                                                          \
+        TEST_ASSERT_EQUAL_INT(SAFE_CALC_OK, safe_##name##_mul((type)(max), (type)1, &result));                         \
+        TEST_ASSERT_TRUE(result == (type)(max));                                                                       \
+                                                                                                                       \
+        /* Zero branch: 0 * x == 0. */                                                                                 \
+        TEST_ASSERT_EQUAL_INT(SAFE_CALC_OK, safe_##name##_mul((type)0, (type)(max), &result));                         \
+        TEST_ASSERT_TRUE(result == (type)0);                                                                           \
+                                                                                                                       \
+        /* Zero branch: x * 0 == 0. */                                                                                 \
+        TEST_ASSERT_EQUAL_INT(SAFE_CALC_OK, safe_##name##_mul((type)(max), (type)0, &result));                         \
+        TEST_ASSERT_TRUE(result == (type)0);                                                                           \
+                                                                                                                       \
+        /* Overflow: MAX * 2. */                                                                                       \
+        TEST_ASSERT_EQUAL_INT(SAFE_CALC_OVERFLOW, safe_##name##_mul((type)(max), (type)2, &result));                   \
+                                                                                                                       \
+        /* NULL result is valid on success. */                                                                         \
+        TEST_ASSERT_EQUAL_INT(SAFE_CALC_OK, safe_##name##_mul((type)10, (type)5, NULL));                               \
+                                                                                                                       \
+        /* NULL result is also valid on error. */                                                                      \
+        TEST_ASSERT_EQUAL_INT(SAFE_CALC_OVERFLOW, safe_##name##_mul((type)(max), (type)2, NULL));                      \
+    }
 
-	/* 异常加法（会溢出）测试。 */
-	if (safe_size_t_add(SIZE_MAX, 1, &res)) {
-		fprintf(
-			stderr, "\n\t异常加法（SIZE_MAX + 1）测试失败：\n"
-			"\t返回值（true）不符合预期（false）！\n"
-		);
-		return false;
-	}
+/* 无符号整数-安全除法-测试函数生成宏。 */
+#define SAFE_CALC_UNSIGNED_DIV_TEST_FN_GEN(name, type, max)                                                            \
+    void test_safe_##name##_div(void)                                                                                  \
+    {                                                                                                                  \
+        type result;                                                                                                   \
+                                                                                                                       \
+        /* Normal case. */                                                                                             \
+        TEST_ASSERT_EQUAL_INT(SAFE_CALC_OK, safe_##name##_div((type)10, (type)5, &result));                            \
+        TEST_ASSERT_TRUE(result == (type)2);                                                                           \
+                                                                                                                       \
+        /* Zero numerator. */                                                                                          \
+        TEST_ASSERT_EQUAL_INT(SAFE_CALC_OK, safe_##name##_div((type)0, (type)5, &result));                             \
+        TEST_ASSERT_TRUE(result == (type)0);                                                                           \
+                                                                                                                       \
+        /* Upper boundary: MAX / 1 == MAX. */                                                                          \
+        TEST_ASSERT_EQUAL_INT(SAFE_CALC_OK, safe_##name##_div((type)(max), (type)1, &result));                         \
+        TEST_ASSERT_TRUE(result == (type)(max));                                                                       \
+                                                                                                                       \
+        /* Integer truncation. */                                                                                      \
+        TEST_ASSERT_EQUAL_INT(SAFE_CALC_OK, safe_##name##_div((type)10, (type)3, &result));                            \
+        TEST_ASSERT_TRUE(result == (type)3);                                                                           \
+                                                                                                                       \
+        /* Divide by zero. */                                                                                          \
+        TEST_ASSERT_EQUAL_INT(SAFE_CALC_DIVIDE_BY_ZERO, safe_##name##_div((type)1, (type)0, &result));                 \
+                                                                                                                       \
+        /* NULL result is valid on success. */                                                                         \
+        TEST_ASSERT_EQUAL_INT(SAFE_CALC_OK, safe_##name##_div((type)10, (type)5, NULL));                               \
+                                                                                                                       \
+        /* NULL result is also valid on error. */                                                                      \
+        TEST_ASSERT_EQUAL_INT(SAFE_CALC_DIVIDE_BY_ZERO, safe_##name##_div((type)1, (type)0, NULL));                    \
+    }
 
-	if (res != 2) {
-		fprintf(
-			stderr, "\n\t异常加法（SIZE_MAX + 1）测试失败：\n"
-			"\t计算结果（%zu）不符合预期（不更改）！\n", res
-		);
-		return false;
-	}
+/* 无符号整数-安全求模-测试函数生成宏。 */
+#define SAFE_CALC_UNSIGNED_MOD_TEST_FN_GEN(name, type, max)                                                            \
+    void test_safe_##name##_mod(void)                                                                                  \
+    {                                                                                                                  \
+        type result;                                                                                                   \
+                                                                                                                       \
+        /* Normal case. */                                                                                             \
+        TEST_ASSERT_EQUAL_INT(SAFE_CALC_OK, safe_##name##_mod((type)10, (type)3, &result));                            \
+        TEST_ASSERT_TRUE(result == (type)1);                                                                           \
+                                                                                                                       \
+        /* Zero numerator. */                                                                                          \
+        TEST_ASSERT_EQUAL_INT(SAFE_CALC_OK, safe_##name##_mod((type)0, (type)5, &result));                             \
+        TEST_ASSERT_TRUE(result == (type)0);                                                                           \
+                                                                                                                       \
+        /* MAX % 1 == 0. */                                                                                            \
+        TEST_ASSERT_EQUAL_INT(SAFE_CALC_OK, safe_##name##_mod((type)(max), (type)1, &result));                         \
+        TEST_ASSERT_TRUE(result == (type)0);                                                                           \
+                                                                                                                       \
+        /* Modulo by zero. */                                                                                          \
+        TEST_ASSERT_EQUAL_INT(SAFE_CALC_DIVIDE_BY_ZERO, safe_##name##_mod((type)1, (type)0, &result));                 \
+                                                                                                                       \
+        /* NULL result is valid on success. */                                                                         \
+        TEST_ASSERT_EQUAL_INT(SAFE_CALC_OK, safe_##name##_mod((type)10, (type)3, NULL));                               \
+                                                                                                                       \
+        /* NULL result is also valid on error. */                                                                      \
+        TEST_ASSERT_EQUAL_INT(SAFE_CALC_DIVIDE_BY_ZERO, safe_##name##_mod((type)1, (type)0, NULL));                    \
+    }
 
-	return true;
-}
+/* 有符号整数系列。 */
 
-/* size_t 乘法（safe_size_t_mul）测试。 */
-static bool test_safe_size_t_mul(void) {
-	size_t res = 0;
+/* 有符号整数-安全加法-测试函数生成宏。 */
+#define SAFE_CALC_SIGNED_ADD_TEST_FN_GEN(name, type, min, max)                                                         \
+    void test_safe_##name##_add(void)                                                                                  \
+    {                                                                                                                  \
+        type result;                                                                                                   \
+                                                                                                                       \
+        /* Positive + positive. */                                                                                     \
+        TEST_ASSERT_EQUAL_INT(SAFE_CALC_OK, safe_##name##_add((type)10, (type)5, &result));                            \
+        TEST_ASSERT_TRUE(result == (type)15);                                                                          \
+                                                                                                                       \
+        /* Positive + negative. */                                                                                     \
+        TEST_ASSERT_EQUAL_INT(SAFE_CALC_OK, safe_##name##_add((type)10, (type) - 5, &result));                         \
+        TEST_ASSERT_TRUE(result == (type)5);                                                                           \
+                                                                                                                       \
+        /* Negative + positive. */                                                                                     \
+        TEST_ASSERT_EQUAL_INT(SAFE_CALC_OK, safe_##name##_add((type) - 10, (type)5, &result));                         \
+        TEST_ASSERT_TRUE(result == (type) - 5);                                                                        \
+                                                                                                                       \
+        /* Negative + negative. */                                                                                     \
+        TEST_ASSERT_EQUAL_INT(SAFE_CALC_OK, safe_##name##_add((type) - 10, (type) - 5, &result));                      \
+        TEST_ASSERT_TRUE(result == (type) - 15);                                                                       \
+                                                                                                                       \
+        /* MAX boundary. */                                                                                            \
+        TEST_ASSERT_EQUAL_INT(SAFE_CALC_OK, safe_##name##_add((type)((max) - 1), (type)1, &result));                   \
+        TEST_ASSERT_TRUE(result == (type)(max));                                                                       \
+                                                                                                                       \
+        /* MIN boundary. */                                                                                            \
+        TEST_ASSERT_EQUAL_INT(SAFE_CALC_OK, safe_##name##_add((type)((min) + 1), (type) - 1, &result));                \
+        TEST_ASSERT_TRUE(result == (type)(min));                                                                       \
+                                                                                                                       \
+        /* Positive overflow: MAX + 1. */                                                                              \
+        TEST_ASSERT_EQUAL_INT(SAFE_CALC_OVERFLOW, safe_##name##_add((type)(max), (type)1, &result));                   \
+                                                                                                                       \
+        /* Negative overflow: MIN - 1. */                                                                              \
+        TEST_ASSERT_EQUAL_INT(SAFE_CALC_OVERFLOW, safe_##name##_add((type)(min), (type) - 1, &result));                \
+                                                                                                                       \
+        /* NULL result is valid on success. */                                                                         \
+        TEST_ASSERT_EQUAL_INT(SAFE_CALC_OK, safe_##name##_add((type)10, (type) - 5, NULL));                            \
+                                                                                                                       \
+        /* NULL result is also valid on error. */                                                                      \
+        TEST_ASSERT_EQUAL_INT(SAFE_CALC_OVERFLOW, safe_##name##_add((type)(max), (type)1, NULL));                      \
+    }
 
-	printf("\n➤【size_t 乘法】测试\n");
+/* 有符号整数-安全减法-测试函数生成宏。 */
+#define SAFE_CALC_SIGNED_SUB_TEST_FN_GEN(name, type, min, max)                                                         \
+    void test_safe_##name##_sub(void)                                                                                  \
+    {                                                                                                                  \
+        type result;                                                                                                   \
+                                                                                                                       \
+        /* Positive - positive. */                                                                                     \
+        TEST_ASSERT_EQUAL_INT(SAFE_CALC_OK, safe_##name##_sub((type)10, (type)5, &result));                            \
+        TEST_ASSERT_TRUE(result == (type)5);                                                                           \
+                                                                                                                       \
+        /* Positive - negative. */                                                                                     \
+        TEST_ASSERT_EQUAL_INT(SAFE_CALC_OK, safe_##name##_sub((type)10, (type) - 5, &result));                         \
+        TEST_ASSERT_TRUE(result == (type)15);                                                                          \
+                                                                                                                       \
+        /* Negative - positive. */                                                                                     \
+        TEST_ASSERT_EQUAL_INT(SAFE_CALC_OK, safe_##name##_sub((type) - 10, (type)5, &result));                         \
+        TEST_ASSERT_TRUE(result == (type) - 15);                                                                       \
+                                                                                                                       \
+        /* Negative - negative. */                                                                                     \
+        TEST_ASSERT_EQUAL_INT(SAFE_CALC_OK, safe_##name##_sub((type) - 10, (type) - 5, &result));                      \
+        TEST_ASSERT_TRUE(result == (type) - 5);                                                                        \
+                                                                                                                       \
+        /* MAX boundary: MAX - 0 == MAX. */                                                                            \
+        TEST_ASSERT_EQUAL_INT(SAFE_CALC_OK, safe_##name##_sub((type)(max), (type)0, &result));                         \
+        TEST_ASSERT_TRUE(result == (type)(max));                                                                       \
+                                                                                                                       \
+        /* MIN boundary: MIN - 0 == MIN. */                                                                            \
+        TEST_ASSERT_EQUAL_INT(SAFE_CALC_OK, safe_##name##_sub((type)(min), (type)0, &result));                         \
+        TEST_ASSERT_TRUE(result == (type)(min));                                                                       \
+                                                                                                                       \
+        /* Positive overflow: MIN - 1. */                                                                              \
+        TEST_ASSERT_EQUAL_INT(SAFE_CALC_OVERFLOW, safe_##name##_sub((type)(min), (type)1, &result));                   \
+                                                                                                                       \
+        /* Positive overflow direction: MAX - (-1). */                                                                 \
+        TEST_ASSERT_EQUAL_INT(SAFE_CALC_OVERFLOW, safe_##name##_sub((type)(max), (type) - 1, &result));                \
+                                                                                                                       \
+        /* NULL result is valid on success. */                                                                         \
+        TEST_ASSERT_EQUAL_INT(SAFE_CALC_OK, safe_##name##_sub((type)10, (type) - 5, NULL));                            \
+                                                                                                                       \
+        /* NULL result is also valid on error. */                                                                      \
+        TEST_ASSERT_EQUAL_INT(SAFE_CALC_OVERFLOW, safe_##name##_sub((type)(min), (type)1, NULL));                      \
+    }
 
-	/* 正常乘法测试。 */
-	if (!safe_size_t_mul(6, 6, &res)) {
-		fprintf(
-			stderr, "\n\t正常乘法（6 * 6）测试失败：\n"
-			"\t返回值（false）不符合预期（true）！\n"
-		);
-		return false;
-	}
+/* 有符号整数-安全乘法-测试函数生成宏。 */
+#define SAFE_CALC_SIGNED_MUL_TEST_FN_GEN(name, type, min, max)                                                         \
+    void test_safe_##name##_mul(void)                                                                                  \
+    {                                                                                                                  \
+        type result;                                                                                                   \
+                                                                                                                       \
+        /* Positive * positive. */                                                                                     \
+        TEST_ASSERT_EQUAL_INT(SAFE_CALC_OK, safe_##name##_mul((type)10, (type)5, &result));                            \
+        TEST_ASSERT_TRUE(result == (type)50);                                                                          \
+                                                                                                                       \
+        /* Positive * negative. */                                                                                     \
+        TEST_ASSERT_EQUAL_INT(SAFE_CALC_OK, safe_##name##_mul((type)10, (type) - 5, &result));                         \
+        TEST_ASSERT_TRUE(result == (type) - 50);                                                                       \
+                                                                                                                       \
+        /* Negative * positive. */                                                                                     \
+        TEST_ASSERT_EQUAL_INT(SAFE_CALC_OK, safe_##name##_mul((type) - 10, (type)5, &result));                         \
+        TEST_ASSERT_TRUE(result == (type) - 50);                                                                       \
+                                                                                                                       \
+        /* Negative * negative. */                                                                                     \
+        TEST_ASSERT_EQUAL_INT(SAFE_CALC_OK, safe_##name##_mul((type) - 10, (type) - 5, &result));                      \
+        TEST_ASSERT_TRUE(result == (type)50);                                                                          \
+                                                                                                                       \
+        /* Zero paths. */                                                                                              \
+        TEST_ASSERT_EQUAL_INT(SAFE_CALC_OK, safe_##name##_mul((type)0, (type)(max), &result));                         \
+        TEST_ASSERT_TRUE(result == (type)0);                                                                           \
+                                                                                                                       \
+        TEST_ASSERT_EQUAL_INT(SAFE_CALC_OK, safe_##name##_mul((type)(min), (type)0, &result));                         \
+        TEST_ASSERT_TRUE(result == (type)0);                                                                           \
+                                                                                                                       \
+        /* MAX * 1 == MAX. */                                                                                          \
+        TEST_ASSERT_EQUAL_INT(SAFE_CALC_OK, safe_##name##_mul((type)(max), (type)1, &result));                         \
+        TEST_ASSERT_TRUE(result == (type)(max));                                                                       \
+                                                                                                                       \
+        /* MIN * 1 == MIN. */                                                                                          \
+        TEST_ASSERT_EQUAL_INT(SAFE_CALC_OK, safe_##name##_mul((type)(min), (type)1, &result));                         \
+        TEST_ASSERT_TRUE(result == (type)(min));                                                                       \
+                                                                                                                       \
+        /* Positive * positive overflow: MAX * 2. */                                                                   \
+        TEST_ASSERT_EQUAL_INT(SAFE_CALC_OVERFLOW, safe_##name##_mul((type)(max), (type)2, &result));                   \
+                                                                                                                       \
+        /* Negative * positive overflow: MIN * 2. */                                                                   \
+        TEST_ASSERT_EQUAL_INT(SAFE_CALC_OVERFLOW, safe_##name##_mul((type)(min), (type)2, &result));                   \
+                                                                                                                       \
+        /* Positive * negative overflow: 2 * MIN. */                                                                   \
+        TEST_ASSERT_EQUAL_INT(SAFE_CALC_OVERFLOW, safe_##name##_mul((type)2, (type)(min), &result));                   \
+                                                                                                                       \
+        /* Negative * negative overflow: MIN * (-1). */                                                                \
+        TEST_ASSERT_EQUAL_INT(SAFE_CALC_OVERFLOW, safe_##name##_mul((type)(min), (type) - 1, &result));                \
+                                                                                                                       \
+        /* NULL result is valid on success. */                                                                         \
+        TEST_ASSERT_EQUAL_INT(SAFE_CALC_OK, safe_##name##_mul((type)10, (type) - 5, NULL));                            \
+                                                                                                                       \
+        /* NULL result is also valid on error. */                                                                      \
+        TEST_ASSERT_EQUAL_INT(SAFE_CALC_OVERFLOW, safe_##name##_mul((type)(min), (type) - 1, NULL));                   \
+    }
 
-	if (res != 36) {
-		fprintf(
-			stderr, "\n\t正常乘法（6 * 6）测试失败：\n"
-			"\t计算结果（%zu）不符合预期（36）！\n", res
-		);
-		return false;
-	}
+/* 有符号整数-安全除法-测试函数生成宏。 */
+#define SAFE_CALC_SIGNED_DIV_TEST_FN_GEN(name, type, min, max)                                                         \
+    void test_safe_##name##_div(void)                                                                                  \
+    {                                                                                                                  \
+        type result;                                                                                                   \
+                                                                                                                       \
+        /* Positive / positive. */                                                                                     \
+        TEST_ASSERT_EQUAL_INT(SAFE_CALC_OK, safe_##name##_div((type)10, (type)5, &result));                            \
+        TEST_ASSERT_TRUE(result == (type)2);                                                                           \
+                                                                                                                       \
+        /* Negative / positive. */                                                                                     \
+        TEST_ASSERT_EQUAL_INT(SAFE_CALC_OK, safe_##name##_div((type) - 10, (type)5, &result));                         \
+        TEST_ASSERT_TRUE(result == (type) - 2);                                                                        \
+                                                                                                                       \
+        /* Positive / negative. */                                                                                     \
+        TEST_ASSERT_EQUAL_INT(SAFE_CALC_OK, safe_##name##_div((type)10, (type) - 5, &result));                         \
+        TEST_ASSERT_TRUE(result == (type) - 2);                                                                        \
+                                                                                                                       \
+        /* Negative / negative. */                                                                                     \
+        TEST_ASSERT_EQUAL_INT(SAFE_CALC_OK, safe_##name##_div((type) - 10, (type) - 5, &result));                      \
+        TEST_ASSERT_TRUE(result == (type)2);                                                                           \
+                                                                                                                       \
+        /* MAX / 1 == MAX. */                                                                                          \
+        TEST_ASSERT_EQUAL_INT(SAFE_CALC_OK, safe_##name##_div((type)(max), (type)1, &result));                         \
+        TEST_ASSERT_TRUE(result == (type)(max));                                                                       \
+                                                                                                                       \
+        /* MIN / 1 == MIN. */                                                                                          \
+        TEST_ASSERT_EQUAL_INT(SAFE_CALC_OK, safe_##name##_div((type)(min), (type)1, &result));                         \
+        TEST_ASSERT_TRUE(result == (type)(min));                                                                       \
+                                                                                                                       \
+        /* Integer truncation toward zero. */                                                                          \
+        TEST_ASSERT_EQUAL_INT(SAFE_CALC_OK, safe_##name##_div((type)10, (type)3, &result));                            \
+        TEST_ASSERT_TRUE(result == (type)3);                                                                           \
+                                                                                                                       \
+        TEST_ASSERT_EQUAL_INT(SAFE_CALC_OK, safe_##name##_div((type) - 10, (type)3, &result));                         \
+        TEST_ASSERT_TRUE(result == (type) - 3);                                                                        \
+                                                                                                                       \
+        /* Divide by zero. */                                                                                          \
+        TEST_ASSERT_EQUAL_INT(SAFE_CALC_DIVIDE_BY_ZERO, safe_##name##_div((type)1, (type)0, &result));                 \
+                                                                                                                       \
+        /* MIN / -1 is not representable. */                                                                           \
+        TEST_ASSERT_EQUAL_INT(SAFE_CALC_OVERFLOW, safe_##name##_div((type)(min), (type) - 1, &result));                \
+                                                                                                                       \
+        /* NULL result is valid on success. */                                                                         \
+        TEST_ASSERT_EQUAL_INT(SAFE_CALC_OK, safe_##name##_div((type) - 10, (type)5, NULL));                            \
+                                                                                                                       \
+        /* NULL result is also valid on error. */                                                                      \
+        TEST_ASSERT_EQUAL_INT(SAFE_CALC_DIVIDE_BY_ZERO, safe_##name##_div((type)1, (type)0, NULL));                    \
+    }
 
-	/* 异常乘法（会溢出）测试。 */
-	if (safe_size_t_mul(SIZE_MAX >> 1, 3, &res)) {
-		fprintf(
-			stderr, "\n\t异常乘法（SIZE_MAX / 2 * 3）测试失败：\n"
-			"\t返回值（true）不符合预期（false）！\n"
-		);
-		return false;
-	}
+/* 有符号整数-安全求模-测试函数生成宏。 */
+#define SAFE_CALC_SIGNED_MOD_TEST_FN_GEN(name, type, min, max)                                                         \
+    void test_safe_##name##_mod(void)                                                                                  \
+    {                                                                                                                  \
+        type result;                                                                                                   \
+                                                                                                                       \
+        /* Positive % positive. */                                                                                     \
+        TEST_ASSERT_EQUAL_INT(SAFE_CALC_OK, safe_##name##_mod((type)10, (type)3, &result));                            \
+        TEST_ASSERT_TRUE(result == (type)1);                                                                           \
+                                                                                                                       \
+        /* Negative % positive. */                                                                                     \
+        TEST_ASSERT_EQUAL_INT(SAFE_CALC_OK, safe_##name##_mod((type) - 10, (type)3, &result));                         \
+        TEST_ASSERT_TRUE(result == (type) - 1);                                                                        \
+                                                                                                                       \
+        /* Positive % negative. */                                                                                     \
+        TEST_ASSERT_EQUAL_INT(SAFE_CALC_OK, safe_##name##_mod((type)10, (type) - 3, &result));                         \
+        TEST_ASSERT_TRUE(result == (type)1);                                                                           \
+                                                                                                                       \
+        /* Negative % negative. */                                                                                     \
+        TEST_ASSERT_EQUAL_INT(SAFE_CALC_OK, safe_##name##_mod((type) - 10, (type) - 3, &result));                      \
+        TEST_ASSERT_TRUE(result == (type) - 1);                                                                        \
+                                                                                                                       \
+        /* MAX % 1 == 0. */                                                                                            \
+        TEST_ASSERT_EQUAL_INT(SAFE_CALC_OK, safe_##name##_mod((type)(max), (type)1, &result));                         \
+        TEST_ASSERT_TRUE(result == (type)0);                                                                           \
+                                                                                                                       \
+        /* MIN % 1 == 0. */                                                                                            \
+        TEST_ASSERT_EQUAL_INT(SAFE_CALC_OK, safe_##name##_mod((type)(min), (type)1, &result));                         \
+        TEST_ASSERT_TRUE(result == (type)0);                                                                           \
+                                                                                                                       \
+        /* Modulo by zero. */                                                                                          \
+        TEST_ASSERT_EQUAL_INT(SAFE_CALC_DIVIDE_BY_ZERO, safe_##name##_mod((type)1, (type)0, &result));                 \
+                                                                                                                       \
+        /* MIN % -1 is the same exceptional case as MIN / -1. */                                                       \
+        TEST_ASSERT_EQUAL_INT(SAFE_CALC_OVERFLOW, safe_##name##_mod((type)(min), (type) - 1, &result));                \
+                                                                                                                       \
+        /* NULL result is valid on success. */                                                                         \
+        TEST_ASSERT_EQUAL_INT(SAFE_CALC_OK, safe_##name##_mod((type) - 10, (type)3, NULL));                            \
+                                                                                                                       \
+        /* NULL result is also valid on error. */                                                                      \
+        TEST_ASSERT_EQUAL_INT(SAFE_CALC_DIVIDE_BY_ZERO, safe_##name##_mod((type)1, (type)0, NULL));                    \
+    }
 
-	if (res != 36) {
-		fprintf(
-			stderr, "\n\t异常乘法（SIZE_MAX / 2 * 3）测试失败：\n"
-			"\t计算结果（%zu）不符合预期（不更改）！\n", res
-		);
-		return false;
-	}
+/* 有符号整数-安全取相反数-测试函数生成宏。 */
+#define SAFE_CALC_SIGNED_NEG_TEST_FN_GEN(name, type, min, max)                                                         \
+    void test_safe_##name##_neg(void)                                                                                  \
+    {                                                                                                                  \
+        type result;                                                                                                   \
+                                                                                                                       \
+        /* Zero. */                                                                                                    \
+        TEST_ASSERT_EQUAL_INT(SAFE_CALC_OK, safe_##name##_neg((type)0, &result));                                      \
+        TEST_ASSERT_TRUE(result == (type)0);                                                                           \
+                                                                                                                       \
+        /* Positive value. */                                                                                          \
+        TEST_ASSERT_EQUAL_INT(SAFE_CALC_OK, safe_##name##_neg((type)5, &result));                                      \
+        TEST_ASSERT_TRUE(result == (type) - 5);                                                                        \
+                                                                                                                       \
+        /* Negative value. */                                                                                          \
+        TEST_ASSERT_EQUAL_INT(SAFE_CALC_OK, safe_##name##_neg((type) - 5, &result));                                   \
+        TEST_ASSERT_TRUE(result == (type)5);                                                                           \
+                                                                                                                       \
+        /* MAX -> -MAX. */                                                                                             \
+        TEST_ASSERT_EQUAL_INT(SAFE_CALC_OK, safe_##name##_neg((type)(max), &result));                                  \
+        TEST_ASSERT_TRUE(result == (type)(-(max)));                                                                    \
+                                                                                                                       \
+        /* MIN cannot be negated. */                                                                                   \
+        TEST_ASSERT_EQUAL_INT(SAFE_CALC_OVERFLOW, safe_##name##_neg((type)(min), &result));                            \
+                                                                                                                       \
+        /* NULL result is valid on success. */                                                                         \
+        TEST_ASSERT_EQUAL_INT(SAFE_CALC_OK, safe_##name##_neg((type)5, NULL));                                         \
+                                                                                                                       \
+        /* NULL result is also valid on error. */                                                                      \
+        TEST_ASSERT_EQUAL_INT(SAFE_CALC_OVERFLOW, safe_##name##_neg((type)(min), NULL));                               \
+    }
 
-	return true;
-}
+/*------------------------------------------------------------------------------
+ * 测试函数生成/定义
+ *----------------------------------------------------------------------------*/
 
-/* size_t 向上对齐（safe_size_t_align_up）测试。 */
-static bool test_safe_size_t_align_up(void) {
-	size_t res = 0;
+/* 无符号整数系列测试函数生成。 */
 
-	printf("\n➤【size_t 向上对齐】测试\n");
+SAFE_CALC_UNSIGNED_INTEGER_TYPES(SAFE_CALC_UNSIGNED_ADD_TEST_FN_GEN)
 
-	/* 正常向上对齐测试。 */
-	if (!safe_size_t_align_up(27, 16, &res)) {
-		fprintf(
-			stderr, "\n\t正常向上对齐（27, 16）测试失败：\n"
-			"\t返回值（false）不符合预期（true）！\n"
-		);
-		return false;
-	}
+SAFE_CALC_UNSIGNED_INTEGER_TYPES(SAFE_CALC_UNSIGNED_SUB_TEST_FN_GEN)
 
-	if (res != 32) {
-		fprintf(
-			stderr, "\n\t正常向上对齐（27, 16）测试失败：\n"
-			"\t计算结果（%zu）不符合预期（32）！\n", res
-		);
-		return false;
-	}
+SAFE_CALC_UNSIGNED_INTEGER_TYPES(SAFE_CALC_UNSIGNED_MUL_TEST_FN_GEN)
 
-	/* 异常向上对齐（会溢出）测试。 */
-	if (safe_size_t_align_up(SIZE_MAX, 2, &res)) {
-		fprintf(
-			stderr, "\n\t异常向上对齐（SIZE_MAX, 2）测试失败：\n"
-			"\t返回值（true）不符合预期（false）！\n"
-		);
-		return false;
-	}
+SAFE_CALC_UNSIGNED_INTEGER_TYPES(SAFE_CALC_UNSIGNED_DIV_TEST_FN_GEN)
 
-	if (res != 32) {
-		fprintf(
-			stderr, "\n\t异常向上对齐（SIZE_MAX, 2）测试失败：\n"
-			"\t计算结果（%zu）不符合预期（不更改）！\n", res
-		);
-		return false;
-	}
+SAFE_CALC_UNSIGNED_INTEGER_TYPES(SAFE_CALC_UNSIGNED_MOD_TEST_FN_GEN)
 
-	return true;
+/* 有符号整数系列测试函数生成。 */
+
+SAFE_CALC_SIGNED_INTEGER_TYPES(SAFE_CALC_SIGNED_ADD_TEST_FN_GEN)
+
+SAFE_CALC_SIGNED_INTEGER_TYPES(SAFE_CALC_SIGNED_SUB_TEST_FN_GEN)
+
+SAFE_CALC_SIGNED_INTEGER_TYPES(SAFE_CALC_SIGNED_MUL_TEST_FN_GEN)
+
+SAFE_CALC_SIGNED_INTEGER_TYPES(SAFE_CALC_SIGNED_DIV_TEST_FN_GEN)
+
+SAFE_CALC_SIGNED_INTEGER_TYPES(SAFE_CALC_SIGNED_MOD_TEST_FN_GEN)
+
+SAFE_CALC_SIGNED_INTEGER_TYPES(SAFE_CALC_SIGNED_NEG_TEST_FN_GEN)
+
+/*------------------------------------------------------------------------------
+ * Unity 测试框架-测试函数运行宏
+ *----------------------------------------------------------------------------*/
+
+/* 无符号整数系列。 */
+
+#define SAFE_CALC_UNSIGNED_ADD_TEST_RUN(name, type, max) RUN_TEST(test_safe_##name##_add);
+
+#define SAFE_CALC_UNSIGNED_SUB_TEST_RUN(name, type, max) RUN_TEST(test_safe_##name##_sub);
+
+#define SAFE_CALC_UNSIGNED_MUL_TEST_RUN(name, type, max) RUN_TEST(test_safe_##name##_mul);
+
+#define SAFE_CALC_UNSIGNED_DIV_TEST_RUN(name, type, max) RUN_TEST(test_safe_##name##_div);
+
+#define SAFE_CALC_UNSIGNED_MOD_TEST_RUN(name, type, max) RUN_TEST(test_safe_##name##_mod);
+
+/* 有符号整数系列。 */
+
+#define SAFE_CALC_SIGNED_ADD_TEST_RUN(name, type, min, max) RUN_TEST(test_safe_##name##_add);
+
+#define SAFE_CALC_SIGNED_SUB_TEST_RUN(name, type, min, max) RUN_TEST(test_safe_##name##_sub);
+
+#define SAFE_CALC_SIGNED_MUL_TEST_RUN(name, type, min, max) RUN_TEST(test_safe_##name##_mul);
+
+#define SAFE_CALC_SIGNED_DIV_TEST_RUN(name, type, min, max) RUN_TEST(test_safe_##name##_div);
+
+#define SAFE_CALC_SIGNED_MOD_TEST_RUN(name, type, min, max) RUN_TEST(test_safe_##name##_mod);
+
+#define SAFE_CALC_SIGNED_NEG_TEST_RUN(name, type, min, max) RUN_TEST(test_safe_##name##_neg);
+
+/*------------------------------------------------------------------------------
+ * main() 函数定义
+ *----------------------------------------------------------------------------*/
+
+int main(void)
+{
+    UNITY_BEGIN();
+
+    /* Unity 测试框架-运行所有无符号整数测试函数。 */
+
+    SAFE_CALC_UNSIGNED_INTEGER_TYPES(SAFE_CALC_UNSIGNED_ADD_TEST_RUN)
+
+    SAFE_CALC_UNSIGNED_INTEGER_TYPES(SAFE_CALC_UNSIGNED_SUB_TEST_RUN)
+
+    SAFE_CALC_UNSIGNED_INTEGER_TYPES(SAFE_CALC_UNSIGNED_MUL_TEST_RUN)
+
+    SAFE_CALC_UNSIGNED_INTEGER_TYPES(SAFE_CALC_UNSIGNED_DIV_TEST_RUN)
+
+    SAFE_CALC_UNSIGNED_INTEGER_TYPES(SAFE_CALC_UNSIGNED_MOD_TEST_RUN)
+
+    /* Unity 测试框架-运行所有有符号整数测试函数。 */
+
+    SAFE_CALC_SIGNED_INTEGER_TYPES(SAFE_CALC_SIGNED_ADD_TEST_RUN)
+
+    SAFE_CALC_SIGNED_INTEGER_TYPES(SAFE_CALC_SIGNED_SUB_TEST_RUN)
+
+    SAFE_CALC_SIGNED_INTEGER_TYPES(SAFE_CALC_SIGNED_MUL_TEST_RUN)
+
+    SAFE_CALC_SIGNED_INTEGER_TYPES(SAFE_CALC_SIGNED_DIV_TEST_RUN)
+
+    SAFE_CALC_SIGNED_INTEGER_TYPES(SAFE_CALC_SIGNED_MOD_TEST_RUN)
+
+    SAFE_CALC_SIGNED_INTEGER_TYPES(SAFE_CALC_SIGNED_NEG_TEST_RUN)
+
+    return UNITY_END();
 }
