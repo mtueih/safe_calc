@@ -1,4 +1,8 @@
+<div align="right">
+
 [English](README.md) | **简体中文**
+
+</div>
 
 # safe_calc
 
@@ -7,19 +11,19 @@
 [![GitHub License](https://img.shields.io/github/license/mtueih/safe_calc)](LICENSE)
 [![CI](https://github.com/mtueih/safe_calc/actions/workflows/ci.yml/badge.svg)](https://github.com/mtueih/safe_calc/actions/workflows/ci.yml)
 
-一个用于安全数值计算的 C 纯头文件库，主要用于防止各种算数溢出。
+一个用于安全数值计算的 C 头文件库，主要用于防止各种算数溢出。
 
 ## API
 
 此库目前包含针对以下类型的若干种运算函数：
 
-- 无符号整数：加、减、乘、除、求模运算。
-- 有符号整数：加、减、乘、除、求模、取相反数运算。
+- 无符号整数：加、减、乘、除、求模。
+- 有符号整数：加、减、乘、除、求模、取相反数。
 
 其中，
 
 - 除法、求模运算支持除零检测。
-- 无符号整数及有符号整数包含所有 C99 及以上标准所严格支持的无符号整数类型。
+- 无符号整数及有符号整数包含所有 C99 及以上标准所严格支持的无符号/有符号整数类型。
 
 具体请参阅：[API 参考](docs/api-reference.zh-CN.md)。
 
@@ -59,7 +63,7 @@ target_link_libraries(your_target PRIVATE safe_calc::safe_calc)
 
 #### 引入头文件
 
-```cpp
+```c
 #include <safe_calc/safe_calc.h>
 ```
 

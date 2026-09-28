@@ -1,4 +1,8 @@
+<div align="right">
+
 [English](api-reference.md) | **简体中文**
+
+</div>
 
 # API 参考
 
