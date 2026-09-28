@@ -16,7 +16,7 @@
 # 项目声明
 #-------------------------------------------------------------------------------
 cmake_minimum_required(VERSION 3.24)
-project(safe_calc VERSION 0.2.2 LANGUAGES C)
+project(safe_calc VERSION 1.0.0 LANGUAGES C)
 
 if(NOT CMAKE_C_STANDARD)
     set(CMAKE_C_STANDARD 99)
