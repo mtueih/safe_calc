@@ -2,93 +2,124 @@
 
 # safe_calc
 
-[![C Standard](https://img.shields.io/badge/C-C99/C11/C17/C23-blue.svg)](https://zh.cppreference.com/c)
+[![C Standard](https://img.shields.io/badge/C-C99+-blue.svg)](https://zh.cppreference.com/c)
 [![CMake](https://img.shields.io/badge/CMake-3.24+-green.svg)](https://cmake.org/)
 [![GitHub License](https://img.shields.io/github/license/mtueih/safe_calc)](LICENSE)
 [![CI](https://github.com/mtueih/safe_calc/actions/workflows/ci.yml/badge.svg)](https://github.com/mtueih/safe_calc/actions/workflows/ci.yml)
 
 一个用于安全数值计算的 C 纯头文件库，主要用于防止各种算数溢出。
 
-## 安装
+## API
 
-### CMake
+此库目前包含针对以下类型的若干种运算函数：
 
-环境要求：
+- 无符号整数：加、减、乘、除、求模运算。
+- 有符号整数：加、减、乘、除、求模、取相反数运算。
 
-- [CMake](https://cmake.org/) 3.21 或更高版本。
+其中，
 
-```bash
-# 克隆仓库。
-git clone https://github.com/mtueih/safe_calc.git
-cd safe_calc
+- 除法、求模运算支持除零检测。
+- 无符号整数及有符号整数包含所有 C99 及以上标准所严格支持的无符号整数类型。
 
-# 配置并安装。
-cmake . -B build -DSAFE_CALC_INSTALL=ON -DBUILD_TESTING=OFF
-cmake --build build
-cmake --install build
-```
+具体请参阅：[API 参考](docs/api-reference.zh-CN.md)。
 
-### CPM.cmake
+## 在其他项目中使用
 
-环境要求：
+### 添加依赖
 
-- [CPM.cmake](https://github.com/cpm-cmake/CPM.cmake)。
+#### CPM.cmake
 
-在 `CMakeLists.txt` 中添加以下内容：
+环境要求：[CPM.cmake](https://github.com/cpm-cmake/CPM.cmake)。
+
+在 `CMakeLists.txt` 中：
 
 ```cmake
 include(${PROJECT_SOURCE_DIR}/cmake/CPM.cmake)
 
-CPMAddPackage(
-	NAME safe_calc
-	GITHUB_REPOSITORY mtueih/safe_calc
-	GIT_TAG v0.2.2
-	OPTIONS "SAFE_CALC_INSTALL OFF" "BUILD_TESTING OFF"
-)
+CPMAddPackage("gh:mtueih/safe_calc#v0.2.2")
 ```
 
-## 使用
+#### CMake find_package（需已安装）
 
-### CMake
-
-在 `CMakeLists.txt` 中添加以下内容：
+在 `CMakeLists.txt` 中：
 
 ```cmake
 find_package(safe_calc REQUIRED)
+```
 
+### 链接库
+
+在 `CMakeLists.txt` 中：
+
+```cmake
 target_link_libraries(your_target PRIVATE safe_calc::safe_calc)
 ```
 
-## 示例
+### 在代码中使用
+
+#### 引入头文件
+
+```cpp
+#include <safe_calc/safe_calc.h>
+```
+
+#### 使用库函数
 
 ```c
-#include <safe_calc.h>
+#include <safe_calc/safe_calc.h>
 #include <stddef.h>
 
-int main(void) {
-	size_t a, b, result;
+int main(void)
+{
+    int a, b, result;
 
-	a = 1;
-	b = 2;
+    a = 1;
+    b = 2;
 
-	/* 仅判断。 */
-	if (safe_size_t_add(a, b, NULL)) {
-		printf("【%zu + %zu】不会溢出。\n", a, b);
-	}
+    /* 仅判断。 */
+    if (safe_int_add(a, b, NULL) == SAFE_CALC_OK)
+    {
+        printf("【%d + %d】不会溢出。\n", a, b);
+    }
 
-	/* 计算。 */
-	if (safe_size_t_add(a, b, &result)) {
-		printf("%zu + %zu = %zu\n", a, b, result);
-	}
+    /* 计算。 */
+    if (safe_int_add(a, b, &result) == SAFE_CALC_OK)
+    {
+        printf("%d + %d = %d\n", a, b, result);
+    }
 
-	return 0;
+    return 0;
 }
 ```
 
-## 文档
+## 从源码构建
 
-- [API 参考](docs/api-reference.zh-CN.md)。
+### 环境要求
+
+- [CMake](https://cmake.org/) 3.24+。
+- 支持 [C99](https://zh.cppreference.com/c/99)+ 的 [C 编译器](https://zh.cppreference.com/c/compiler_support)（MSVC / MinGW-w64 / Clang）。
+
+### 构建步骤
+
+#### 克隆仓库
+
+```bash
+git clone https://github.com/mtueih/safe_calc.git --depth 1 -b v0.2.2
+cd safe_calc
+```
+
+#### 配置、构建与安装
+
+```bash
+cmake -B build -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF -DSAFE_CALC_INSTALL=ON
+cmake --build build --config Release --parallel
+cmake --install build --config Release --strip --prefix install
+```
+
+有关上述命令的说明：
+
+- 安装命令。通过 `--prefix install` 将产物安装在了 `install` 目录下，而不是全局安装，以便你按自己的方式使用安装产物。如果你希望全局安装，则删除它即可。
 
 ## 许可协议
 
-本项目采用 [ISC许可证](https://www.isc.org/licenses/) 授权——详情请参阅 [LICENSE](LICENSE) 文件。
+本项目采用 [ISC 许可证](https://www.isc.org/licenses/) 授权——详情请参阅 [LICENSE](LICENSE) 文件。
