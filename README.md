@@ -40,7 +40,7 @@ In `CMakeLists.txt`:
 ```cmake
 include(${PROJECT_SOURCE_DIR}/cmake/CPM.cmake)
 
-CPMAddPackage("gh:mtueih/safe_calc#v1.0.0")
+CPMAddPackage("gh:mtueih/safe_calc#v1.0.1")
 ```
 
 #### CMake find_package (requires installation)
@@ -108,7 +108,7 @@ int main(void)
 #### Clone the Repository
 
 ```bash
-git clone https://github.com/mtueih/safe_calc.git --depth 1 -b v1.0.0
+git clone https://github.com/mtueih/safe_calc.git --depth 1 -b v1.0.1
 cd safe_calc
 ```
 
