@@ -3,12 +3,11 @@
 #===============================================================================
 # 职责：
 #   1. 项目声明；
-#   2. 全局变量定义
-#   3. 全局模块引入；
-#   4. 库构建；
-#   5. 测试构建；
-#   6. 库安装；
-#   7. 包安装。
+#   2. 全局变量定义；
+#   3. 库构建；
+#   4. 测试构建；
+#   5. 库安装；
+#   6. 包安装。
 #===============================================================================
 
 
@@ -37,16 +36,6 @@ set(MAIN_LIB_TARGET_NAME ${PROJECT_NAME})
 
 
 #-------------------------------------------------------------------------------
-# 全局模块引入
-#-------------------------------------------------------------------------------
-
-# 提供测试支持。
-if(PROJECT_IS_TOP_LEVEL)
-    include(CTest)
-endif()
-
-
-#-------------------------------------------------------------------------------
 # 源码构建
 #-------------------------------------------------------------------------------
 add_library(${MAIN_LIB_TARGET_NAME} INTERFACE)
@@ -64,27 +53,31 @@ target_sources(
 #-------------------------------------------------------------------------------
 # 测试构建
 #-------------------------------------------------------------------------------
-if(BUILD_TESTING)
-    # 主库的单元测试可执行文件的目标名称列表。
-    set(TEST_NAMES ${MAIN_LIB_TARGET_NAME})
+if(PROJECT_IS_TOP_LEVEL)
+    include(CTest)
 
-    # CPM.cmake 集成 Unity 测试框架。
-    include(cmake/CPM.cmake)
-    CPMAddPackage("gh:ThrowTheSwitch/Unity#v2.7.0")
+    if(BUILD_TESTING)
+        # 主库的单元测试可执行文件的目标名称列表。
+        set(TEST_NAMES ${MAIN_LIB_TARGET_NAME})
 
-    foreach(TEST_NAME ${TEST_NAMES})
-        set(TEST_TARGET_NAME test_${TEST_NAME})
+        # CPM.cmake 集成 Unity 测试框架。
+        include(cmake/CPM.cmake)
+        CPMAddPackage("gh:ThrowTheSwitch/Unity#v2.7.0")
 
-        # 构建测试可执行文件。
-        add_executable(${TEST_TARGET_NAME} tests/${TEST_TARGET_NAME}.c)
+        foreach(TEST_NAME ${TEST_NAMES})
+            set(TEST_TARGET_NAME test_${TEST_NAME})
 
-        # 链接项目主库与 Unity 测试框架。
-        target_link_libraries(${TEST_TARGET_NAME} PRIVATE ${MAIN_LIB_TARGET_NAME})
-        target_link_libraries(${TEST_TARGET_NAME} PRIVATE unity::framework)
+            # 构建测试可执行文件。
+            add_executable(${TEST_TARGET_NAME} tests/${TEST_TARGET_NAME}.c)
 
-        # 注册测试可执行文件到 CTest。
-        add_test(NAME ${TEST_TARGET_NAME} COMMAND ${TEST_TARGET_NAME})
-    endforeach()
+            # 链接项目主库与 Unity 测试框架。
+            target_link_libraries(${TEST_TARGET_NAME} PRIVATE ${MAIN_LIB_TARGET_NAME})
+            target_link_libraries(${TEST_TARGET_NAME} PRIVATE unity::framework)
+
+            # 注册测试可执行文件到 CTest。
+            add_test(NAME ${TEST_TARGET_NAME} COMMAND ${TEST_TARGET_NAME})
+        endforeach()
+    endif()
 endif()
 
 
